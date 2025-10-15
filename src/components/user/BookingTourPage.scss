@@ -1,0 +1,25 @@
+.icon-step {
+  .icon-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px; // kích thước vòng tròn
+    height: 70px;
+    border-radius: 50%; // bo tròn
+    background-color: #f0f0f0; // nền nhẹ
+    color: #adadae; // màu icon
+    font-size: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); // hiệu ứng nổi
+    transition: all 0.3s;
+    font-size: 40px;
+  }
+
+  .icon-arrow {
+    font-size: 30px;
+    color: #6c757d;
+  }
+  .active {
+    color: white;
+    background-color: rgb(4, 4, 190);
+  }
+}

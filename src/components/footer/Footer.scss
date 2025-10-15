@@ -1,0 +1,42 @@
+.footer-container {
+  display: flex;
+  width: 99%;
+  margin-left: 7px;
+  margin-bottom: 7px;
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2); /* thêm blur radius */
+  border-radius: 12px;
+  background-color: #fff; /* để shadow nhìn rõ */
+
+  .left-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    img {
+      width: 100px;
+    }
+  }
+  .center-content {
+    flex: 2;
+    .formatted-text {
+      white-space: pre-wrap; /* giữ xuống dòng và khoảng trắng */
+      font-family: "Arial", sans-serif; /* font đẹp, không monospace */
+      font-size: 16px;
+      line-height: 1.5; /* khoảng cách giữa các dòng */
+      color: #333;
+    }
+  }
+  .right-content {
+    flex: 1;
+  }
+  @media (max-width: 768px) {
+    flex-direction: column;
+
+    .left-content,
+    .center-content,
+    .right-content {
+      min-width: 100%;
+    }
+  }
+}

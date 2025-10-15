@@ -1,0 +1,79 @@
+.home-page {
+  // Banner đầu trang
+  .header-content {
+    text-align: center;
+
+    img {
+      max-width: 100%; /* Không vượt quá chiều ngang khung cha */
+      height: auto; /* Tự tính chiều cao để giữ đúng tỷ lệ */
+      display: block; /* Loại bỏ khoảng trống dưới ảnh inline */
+    }
+  }
+
+  // Nội dung chính
+  .main-content {
+    display: flex;
+    flex-wrap: wrap; // để responsive
+    gap: 20px;
+    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto; // căn giữa toàn bộ khối
+    align-items: stretch;
+
+    .left-content {
+      flex: 1;
+      min-width: 300px;
+      background-color: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      height: fit-content;
+      h1 {
+        font-size: 22px;
+        margin-bottom: 25px;
+        text-align: center;
+        color: #333;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+
+      .btn-custom {
+        width: 120px;
+        background-color: #87c0fc;
+        color: #fff;
+        border: none;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        padding: 8px 16px;
+
+        &:hover {
+          background-color: #0256b0;
+        }
+      }
+      .btn-selected {
+        background-color: #0256b0;
+      }
+    }
+
+    .right-content {
+      flex: 2;
+      min-width: 400px;
+      background-color: #f8f9fa;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      // height: 105vh;
+    }
+    @media (max-width: 768px) {
+      flex-direction: column;
+
+      .left-content,
+      .right-content {
+        min-width: 100%;
+      }
+    }
+  }
+}

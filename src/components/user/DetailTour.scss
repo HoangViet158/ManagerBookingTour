@@ -1,0 +1,145 @@
+.detail-tour {
+  display: flex;
+  flex-wrap: wrap; // cho phép xuống dòng khi màn hình nhỏ
+  width: 100%;
+  gap: 20px; // khoảng cách giữa left và right content
+  justify-content: center; /* căn ngang giữa */
+
+  .left-content {
+    display: flex;
+    flex-direction: column; // hiển thị vertical
+    flex: 2;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+
+    .illustration {
+      width: 600px;
+      max-width: 100%; // responsive
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .swiper-slide {
+        img {
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+          border-radius: 4px;
+        }
+
+        &.swiper-slide-thumb-active img {
+          border: 2px solid #00b3ff;
+          box-shadow: 0 0 10px rgba(0, 179, 255, 0.7);
+        }
+      }
+    }
+    .departure-time-tour {
+      width: 70%;
+      .day-container {
+        display: flex; /* cho các button nằm ngang */
+        gap: 10px; /* khoảng cách giữa button */
+        max-width: 100%;
+        overflow: h0idden; /* PerfectScrollbar sẽ handle scroll */
+        position: relative;
+        padding-bottom: 20px;
+      }
+      .btn-day {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgb(152, 150, 150);
+      }
+    }
+    .schedule-content {
+      width: 100%;
+      li {
+        padding-left: 10px;
+        list-style: none;
+        border: 1px solid #ccc;
+        box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        margin-bottom: 10px;
+        border-radius: 5px;
+      }
+    }
+  }
+
+  .right-content {
+    flex: 0 0 fit-content;
+    width: 400px;
+    height: fit-content;
+    font-size: 35px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    padding: 10px 20px; // thêm padding cho đẹp
+    text-align: center; // căn chữ giữa
+    margin-right: 10%;
+    .price-tour {
+      color: #ff4d4f;
+      font-size: 40px;
+      font-weight: bold;
+    }
+  }
+
+  /* ============================= */
+  /* Media Queries cho responsive  */
+  /* ============================= */
+  @media (max-width: 1024px) {
+    .left-content .illustration {
+      width: 500px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column; // xuống dòng
+
+    .left-content,
+    .right-content {
+      flex: unset;
+      width: 100%;
+    }
+
+    .left-content .illustration {
+      width: 100%;
+    }
+
+    .right-content {
+      font-size: 28px;
+      margin-top: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .left-content .illustration {
+      width: 100%;
+      img {
+        height: 200px; // giảm chiều cao ảnh
+      }
+    }
+
+    .right-content {
+      font-size: 22px;
+    }
+  }
+}
+.another-tour {
+  .custom-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid gray !important;
+    border-radius: 5px !important;
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    button {
+      small {
+        &:hover {
+          color: skyblue !important;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}

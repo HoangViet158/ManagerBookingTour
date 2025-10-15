@@ -1,0 +1,24 @@
+.custom-navbar {
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  .custom-toggle {
+    padding: 0.15rem 0.3rem; /* thu nhỏ phần đệm xung quanh */
+    font-size: 1rem; /* thu nhỏ biểu tượng hamburger */
+    border: none; /* tùy chọn: bỏ viền */
+  }
+
+  .custom-toggle .navbar-toggler-icon {
+    width: 1.25rem; /* giảm chiều rộng icon */
+    height: 1.25rem; /* giảm chiều cao icon */
+  }
+  .nav-icon {
+    color: white;
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+  }
+  .nav-text {
+    color: white;
+    text-decoration: none;
+  }
+}
