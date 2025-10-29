@@ -200,7 +200,7 @@ const DetailTour = () => {
           <div className="d-flex justify-content-start fs-4">
             {" "}
             Thời gian:{" "}
-            <strong className="text-primary">{tour.duration_days}</strong>
+            <strong className="text-primary">{tour.duration_days} ngày</strong>
           </div>
           {/* <div className="d-flex justify-content-start fs-4">
             {" "}

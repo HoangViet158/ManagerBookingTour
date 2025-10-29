@@ -1,5 +1,14 @@
+import { useState } from "react";
+import adminApi from "../../services/adminApi";
 import "./register.scss";
 const Register = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const res = await adminApi.register({ email, password });
+    console.log(">>> check res: ", res);
+  };
   return (
     <div className="register-container">
       <div className="title">Đăng ký</div>
@@ -26,6 +35,7 @@ const Register = () => {
             type="email"
             className="form-control"
             placeholder="Nhập email"
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="form-group">
@@ -34,10 +44,15 @@ const Register = () => {
             type="password"
             className="form-control"
             placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
           />
         </div>
         <div className="text-center justify-content-center mt-4">
-          <button type="submit" className="btn btn-primary ">
+          <button
+            type="submit"
+            className="btn btn-primary "
+            onClick={handleRegister}
+          >
             Đăng ký
           </button>
         </div>
