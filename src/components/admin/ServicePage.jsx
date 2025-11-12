@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button, Modal, Form } from "react-bootstrap";
-import adminApi from "../../services/adminApi"; // file API quản lý admin
+import { Table, Button } from "react-bootstrap";
+import adminApi from "../../services/adminApi";
 import FormatCurrency from "../../hooks/FormatCurrency";
+import ServiceModal from "./ServiceModal";
+import DeleteServiceModal from "./DeleteServiceModal";
 
-const ServicesPage = () => {
+export default function ServicesPage() {
   const [services, setServices] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [currentService, setCurrentService] = useState(null);
 
-  // Lấy danh sách dịch vụ
   const fetchServices = async () => {
     try {
-      const res = await adminApi.getServices(); // giả định trả về { data: [...] }
+      const res = await adminApi.getServices();
       setServices(res);
-      console.log(res);
     } catch (err) {
       console.error(err);
     }
@@ -23,40 +27,35 @@ const ServicesPage = () => {
     fetchServices();
   }, []);
 
-  // Mở modal thêm / sửa
-  const handleOpenModal = (service = null) => {
-    setCurrentService(service);
-    setShowModal(true);
+  const handleAddService = async (service) => {
+    await adminApi.createService(service);
+    setShowAddModal(false);
+    fetchServices();
   };
 
-  // Lưu dịch vụ (thêm hoặc sửa)
-  const handleSave = async () => {
-    try {
-      if (currentService?.id) {
-        await adminApi.updateService(currentService.id, currentService);
-      } else {
-        await adminApi.createService(currentService);
-      }
-      setShowModal(false);
-      fetchServices();
-    } catch (err) {
-      console.error(err);
-    }
+  const handleEditService = async (service) => {
+    await adminApi.updateService(service.id, service);
+    setShowEditModal(false);
+    fetchServices();
   };
 
-  // Xóa dịch vụ
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc muốn xóa dịch vụ này không?")) {
-      await adminApi.deleteService(id);
-      fetchServices();
-    }
+  const handleDeleteService = async () => {
+    await adminApi.deleteService(currentService.id);
+    setShowDeleteModal(false);
+    fetchServices();
   };
 
   return (
     <div className="container-fluid mt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Quản lý Dịch vụ</h2>
-        <Button variant="success" onClick={() => handleOpenModal()}>
+        <Button
+          variant="success"
+          onClick={() => {
+            setCurrentService(null);
+            setShowAddModal(true);
+          }}
+        >
           Thêm Dịch vụ
         </Button>
       </div>
@@ -68,7 +67,7 @@ const ServicesPage = () => {
               <th>ID</th>
               <th>Loại dịch vụ</th>
               <th>Tên dịch vụ</th>
-              <th>Nhà cung cấp</th>
+              {/* <th>Nhà cung cấp</th> */}
               <th>Chi tiết</th>
               <th>Giá</th>
               <th>Hành động</th>
@@ -80,7 +79,7 @@ const ServicesPage = () => {
                 <td>{service.id}</td>
                 <td>{service.type}</td>
                 <td>{service.name}</td>
-                <td>{service.provider}</td>
+                {/* <td>{service.provider}</td> */}
                 <td>{service.details}</td>
                 <td>{FormatCurrency(service.price)}</td>
                 <td>
@@ -88,14 +87,20 @@ const ServicesPage = () => {
                     size="sm"
                     variant="primary"
                     className="me-2"
-                    onClick={() => handleOpenModal(service)}
+                    onClick={() => {
+                      setCurrentService(service);
+                      setShowEditModal(true);
+                    }}
                   >
                     Sửa
                   </Button>
                   <Button
                     size="sm"
                     variant="danger"
-                    onClick={() => handleDelete(service.id)}
+                    onClick={() => {
+                      setCurrentService(service);
+                      setShowDeleteModal(true);
+                    }}
                   >
                     Xóa
                   </Button>
@@ -106,85 +111,27 @@ const ServicesPage = () => {
         </Table>
       </div>
 
-      {/* Modal thêm/sửa dịch vụ */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>
-            {currentService?.id ? "Sửa Dịch vụ" : "Thêm Dịch vụ"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Loại dịch vụ</Form.Label>
-              <Form.Control
-                type="text"
-                value={currentService?.type || ""}
-                onChange={(e) =>
-                  setCurrentService({
-                    ...currentService,
-                    type: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Tên dịch vụ</Form.Label>
-              <Form.Control
-                type="text"
-                value={currentService?.name || ""}
-                onChange={(e) =>
-                  setCurrentService({
-                    ...currentService,
-                    name: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Nhà cung cấp</Form.Label>
-              <Form.Control
-                type="text"
-                value={currentService?.provider || ""}
-                onChange={(e) =>
-                  setCurrentService({
-                    ...currentService,
-                    provider: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Chi tiết</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={currentService?.details || ""}
-                onChange={(e) =>
-                  setCurrentService({
-                    ...currentService,
-                    details: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Hủy
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Lưu
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Modals */}
+      <ServiceModal
+        show={showAddModal}
+        onHide={() => setShowAddModal(false)}
+        onSave={handleAddService}
+        service={currentService}
+        title="Thêm Dịch vụ"
+      />
+      <ServiceModal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        onSave={handleEditService}
+        service={currentService}
+        title="Sửa Dịch vụ"
+      />
+      <DeleteServiceModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onDelete={handleDeleteService}
+        service={currentService}
+      />
     </div>
   );
-};
-
-export default ServicesPage;
+}

@@ -12,6 +12,7 @@ import {
 import { FaUsersLine } from "react-icons/fa6";
 import { FaUsersGear } from "react-icons/fa6";
 import { MdMiscellaneousServices } from "react-icons/md";
+import { LiaSearchLocationSolid } from "react-icons/lia";
 
 import { useState } from "react";
 
@@ -73,6 +74,12 @@ const AppSidebar = () => {
           Quản lý Khách hàng
         </MenuItem>
         <MenuItem
+          icon={<LiaSearchLocationSolid />}
+          component={<NavLink to="locations" />}
+        >
+          Quản lý địa điểm
+        </MenuItem>
+        <MenuItem
           icon={<MdMiscellaneousServices />}
           component={<NavLink to="services" />}
         >
@@ -85,21 +92,24 @@ const AppSidebar = () => {
           Quản lý Hóa đơn
         </MenuItem>
 
-        <SubMenu icon={<FaCalendarAlt />} label="Quản lý Lịch trình">
+        {/* <SubMenu icon={<FaCalendarAlt />} label="Quản lý Lịch trình">
           <MenuItem component={<NavLink to="schedules/employees" />}>
             Lịch trình nhân viên
           </MenuItem>
           <MenuItem component={<NavLink to="schedules/tour" />}>
             Lịch trình tour
           </MenuItem>
-        </SubMenu>
+        </SubMenu> */}
 
-        <SubMenu icon={<FaChartBar />} label="Thống kê / Tài liệu">
+        {/* <SubMenu icon={<FaChartBar />} label="Thống kê / Tài liệu">
           <MenuItem component={<NavLink to="stats/sales" />}>
             Doanh thu
           </MenuItem>
           <MenuItem component={<NavLink to="docs" />}>Tài liệu</MenuItem>
-        </SubMenu>
+        </SubMenu> */}
+        <MenuItem icon={<FaChartBar />} component={<NavLink to="stats" />}>
+          Doanh thu
+        </MenuItem>
       </Menu>
     </Sidebar>
   );

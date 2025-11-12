@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button, Form, Image } from "react-bootstrap";
 
 export default function TourImagesInput({ images, setImages }) {

@@ -3,10 +3,13 @@ import adminApi from "../../services/adminApi";
 import AddEmployeeModal from "./AddEmployeeModal";
 import EditEmployeeModal from "./EditEmployeeModal";
 import DeleteEmployeeModal from "./DeleteEmployeeModal";
+import EmployeeScheduleModal from "./EmployeeSheduleModal";
 
 const EmployeesPage = () => {
   const [employees, setEmployees] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEmployeeScheduleModal, setShowEmployeeScheduleModal] =
+    useState(false);
   const [editEmployee, setEditEmployee] = useState(null);
   const [deleteEmployee, setDeleteEmployee] = useState(null);
 
@@ -53,6 +56,12 @@ const EmployeesPage = () => {
                 <td>{emp.role_title}</td>
                 <td>
                   <button
+                    className="btn btn-primary btn-sm me-2"
+                    onClick={() => setShowEmployeeScheduleModal(emp)}
+                  >
+                    Lịch trình nhân viên
+                  </button>
+                  <button
                     className="btn btn-warning btn-sm me-2"
                     onClick={() => setEditEmployee(emp)}
                   >
@@ -95,6 +104,11 @@ const EmployeesPage = () => {
           onSuccess={fetchEmployees}
         />
       )}
+      <EmployeeScheduleModal
+        show={!!showEmployeeScheduleModal}
+        onClose={() => setShowEmployeeScheduleModal(null)}
+        employee={showEmployeeScheduleModal}
+      />
     </div>
   );
 };

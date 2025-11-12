@@ -3,11 +3,13 @@ import { Button, Table } from "react-bootstrap";
 import AddTourModal from "./AddTourModal";
 import EditTourModal from "./EditTourModal";
 import tourApi from "../../services/adminApi";
+import TourScheduleModal from "./TourScheduleModal";
 
 export default function TourPage() {
   const [tours, setTours] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showSchedule, setShowSchedule] = useState(false);
   const [selectedTour, setSelectedTour] = useState(null);
 
   useEffect(() => {
@@ -27,6 +29,10 @@ export default function TourPage() {
   const handleEdit = (tour) => {
     setSelectedTour(tour);
     setShowEdit(true);
+  };
+  const handleSchedule = (tour) => {
+    setSelectedTour(tour);
+    setShowSchedule(true);
   };
 
   const handleDelete = async (tour) => {
@@ -82,6 +88,15 @@ export default function TourPage() {
                   size="sm"
                   variant="primary"
                   className="me-2"
+                  onClick={() => handleSchedule(t)}
+                >
+                  {" "}
+                  Lịch trình
+                </Button>
+                <Button
+                  size="sm"
+                  variant="warning"
+                  className="me-2"
                   onClick={() => handleEdit(t)}
                 >
                   Sửa
@@ -109,6 +124,11 @@ export default function TourPage() {
         show={showEdit}
         onHide={() => setShowEdit(false)}
         onSuccess={fetchTours}
+        tour={selectedTour}
+      />
+      <TourScheduleModal
+        show={showSchedule}
+        onClose={() => setShowSchedule(false)}
         tour={selectedTour}
       />
     </div>

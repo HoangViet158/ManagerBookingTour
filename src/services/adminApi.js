@@ -15,8 +15,10 @@ const adminApi = {
   deleteLocation: (id) => instance.delete(`${BASE_URL}/locations/${id}`),
 
   // Service
-  addService: (data) => instance.post(`${BASE_URL}/services/add-service`, data),
+  createService: (data) =>
+    instance.post(`${BASE_URL}/services/add-service`, data),
   getServices: () => instance.get(`${BASE_URL}/services`),
+  getServiceById: (id) => instance.get(`${BASE_URL}/services/${id}`),
   updateService: (id, data) => instance.put(`${BASE_URL}/services/${id}`, data),
   deleteService: (id) => instance.delete(`${BASE_URL}/services/${id}`),
 
@@ -45,6 +47,17 @@ const adminApi = {
   deleteEmployee: (id) => instance.delete(`${BASE_URL}/employees/${id}`),
   getEmployeeById: (id) => instance.get(`${BASE_URL}/employees/${id}`),
 
+  // Employee Schedule
+  getEmployeeSchedules: () => instance.get(`${BASE_URL}/employee-schedules`),
+  getScheduleByEmployeeId: (employeeId) =>
+    instance.get(`${BASE_URL}/employee-schedules/employee/${employeeId}`),
+  addEmployeeSchedule: (data) =>
+    instance.post(`${BASE_URL}/employee-schedules/add`, data),
+  updateEmployeeSchedule: (id, data) =>
+    instance.put(`${BASE_URL}/employee-schedules/${id}`, data),
+  deleteEmployeeSchedule: (id) =>
+    instance.delete(`${BASE_URL}/employee-schedules/${id}`),
+
   // TourImage
   uploadImages: (tourId, formData) =>
     instance.post(`${BASE_URL}/tours/${tourId}`, formData, {
@@ -62,8 +75,27 @@ const adminApi = {
     instance.delete(`${BASE_URL}/customers/${id}`, { data }),
   getCustomersWithoutUser: () => instance.get(`${BASE_URL}/customers/no-user`),
   //Tour Schedule
-  getTourSchedulesByTourId: (tourId) =>
+  // 🔹 Lấy tất cả lịch tour
+  getAllTourSchedule: () => instance.get(`${BASE_URL}/tour-schedules`),
+
+  // 🔹 Lấy lịch theo tour_id
+  getTourScheduleByTourId: (tourId) =>
     instance.get(`${BASE_URL}/tour-schedules/${tourId}`),
+
+  // 🔹 Thêm lịch tour
+  addSchedule: (data) =>
+    instance.post(`${BASE_URL}/tour-schedules/add-schedule`, data),
+  // data = { tour_id, start_date, end_date, seats_total, seats_booked?, price_per_person?, status? }
+
+  // 🔹 Cập nhật lịch tour
+  updateSchedule: (id, data) =>
+    instance.put(`${BASE_URL}/tour-schedules/${id}`, data),
+  // data = { start_date, end_date, seats_total, seats_booked?, price_per_person?, status? }
+
+  // 🔹 Xóa lịch tour
+  deleteSchedule: (id) => instance.delete(`${BASE_URL}/tour-schedules/${id}`),
+  // getTourSchedulesByTourId: (tourId) =>
+  //   instance.get(`${BASE_URL}/tour-schedules/${tourId}`),
 
   // Invoice
   getInvoices: () => instance.get(`${BASE_URL}/invoices`),

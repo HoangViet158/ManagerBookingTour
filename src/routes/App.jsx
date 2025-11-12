@@ -17,6 +17,7 @@ import InvoicesPage from "../components/admin/InvoicesPage";
 import EmployeesPage from "../components/admin/EmployeesPage";
 import CustomersPage from "../components/admin/CustomersPage";
 import ServicesPage from "../components/admin/ServicePage";
+import LocationPage from "../components/admin/LocationPage";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="/admin/employees" element={<EmployeesPage />}></Route>
           <Route path="/admin/customers" element={<CustomersPage />}></Route>
           <Route path="/admin/services" element={<ServicesPage />}></Route>
+          <Route path="/admin/locations" element={<LocationPage />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

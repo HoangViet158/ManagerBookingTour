@@ -47,13 +47,12 @@ export default function EditTourModal({ show, onHide, onSuccess, tour }) {
       tourApi
         .getImages(tour.id)
         .then((res) => {
-          console.log(res);
           setImages(res.map((i) => ({ id: i.id, img: i.img })));
         })
         .catch(console.error);
     }
   }, [tour]);
-  console.log(images);
+  // console.log(images);
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.price)
@@ -197,7 +196,7 @@ export default function EditTourModal({ show, onHide, onSuccess, tour }) {
             {/* Ảnh đã có */}
             {images.map((img) => (
               <div key={img.id} className="position-relative me-2 mb-2">
-                {console.log(`anh: ${import.meta.env.VITE_API_URL}${img.img}`)}
+                {/* {console.log(`anh: ${import.meta.env.VITE_API_URL}${img.img}`)} */}
                 <Image
                   src={`${import.meta.env.VITE_API_URL}${img.img}`}
                   width={120}
