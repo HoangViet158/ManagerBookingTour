@@ -18,34 +18,37 @@ import EmployeesPage from "../components/admin/EmployeesPage";
 import CustomersPage from "../components/admin/CustomersPage";
 import ServicesPage from "../components/admin/ServicePage";
 import LocationPage from "../components/admin/LocationPage";
+import { AuthProvider } from "../hooks/AuthContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<UserLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/detail-tour/:id" element={<DetailTour />} />
-          <Route path="/booking-tour" element={<BookingTourPage />} />
-          <Route path="/profile" element={<Profile />}>
-            <Route index element={<ProfileInformation />} />
-            <Route path="schedule" element={<Schedule />} />
-            <Route path="history" element={<History />} />
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<UserLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/detail-tour/:id" element={<DetailTour />} />
+            <Route path="/booking-tour/:id" element={<BookingTourPage />} />
+            <Route path="/profile" element={<Profile />}>
+              <Route index element={<ProfileInformation />} />
+              <Route path="schedule" element={<Schedule />} />
+              <Route path="history" element={<History />} />
+            </Route>
           </Route>
-        </Route>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="/admin/users" element={<UsersPage />}></Route>
-          <Route path="/admin/tours" element={<ToursPage />}></Route>
-          <Route path="/admin/invoices" element={<InvoicesPage />}></Route>
-          <Route path="/admin/employees" element={<EmployeesPage />}></Route>
-          <Route path="/admin/customers" element={<CustomersPage />}></Route>
-          <Route path="/admin/services" element={<ServicesPage />}></Route>
-          <Route path="/admin/locations" element={<LocationPage />}></Route>
-        </Route>
-      </Routes>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="/admin/users" element={<UsersPage />}></Route>
+            <Route path="/admin/tours" element={<ToursPage />}></Route>
+            <Route path="/admin/invoices" element={<InvoicesPage />}></Route>
+            <Route path="/admin/employees" element={<EmployeesPage />}></Route>
+            <Route path="/admin/customers" element={<CustomersPage />}></Route>
+            <Route path="/admin/services" element={<ServicesPage />}></Route>
+            <Route path="/admin/locations" element={<LocationPage />}></Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

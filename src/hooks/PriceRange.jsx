@@ -2,8 +2,8 @@ import { useState } from "react";
 import FormatCurrency from "./FormatCurrency";
 
 const PriceRange = (props) => {
-  const { price, setPrice } = props;
-  const [priceValue, setPriceValue] = useState(price || 0);
+  const { maxPrice, price, setPrice } = props;
+  const [priceValue, setPriceValue] = useState(price || maxPrice);
 
   const handleOnChange = (value) => {
     const numValue = Number(value);
@@ -20,7 +20,7 @@ const PriceRange = (props) => {
         id="priceRange"
         type="range"
         min="0"
-        max="1000000"
+        max={maxPrice}
         step="50"
         value={priceValue}
         onChange={(e) => handleOnChange(e.target.value)}

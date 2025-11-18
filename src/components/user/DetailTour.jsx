@@ -15,6 +15,7 @@ import ModalBookTour from "./ModalBookTour";
 import AnotherTour from "./AnotherTour";
 import { useParams } from "react-router-dom";
 import adminApi from "../../services/adminApi";
+import tourItineraryApi from "../../services/tourItineraryApi";
 import dayjs from "dayjs";
 
 const DetailTour = () => {
@@ -22,6 +23,7 @@ const DetailTour = () => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const daySelectionRef = useRef();
   const [modalShow, setModalShow] = useState(false);
+  const [tourItineraries, setTourItineraries] = useState([]);
   const [scheduleSelected, setScheduleSelected] = useState({
     id: "",
     tour_id: "",
@@ -35,6 +37,7 @@ const DetailTour = () => {
     updated_at: "",
   });
   const [tourSchedules, setTourSchedules] = useState([]);
+  const [img, setImg] = useState([]);
   const [tour, setTour] = useState([
     {
       id: "",
@@ -54,46 +57,45 @@ const DetailTour = () => {
     },
   ]);
   useEffect(() => {
-    const ps = new PerfectScrollbar(daySelectionRef.current, {
-      suppressScrollY: true, // tắt scroll dọc
-      suppressScrollX: false, // bật scroll ngang
-    });
-    return () => {
-      ps.destroy();
-    };
+    if (daySelectionRef.current) {
+      const ps = new PerfectScrollbar(daySelectionRef.current, {
+        suppressScrollY: true,
+        wheelPropagation: true,
+      });
+      return () => ps.destroy();
+    }
   }, []);
   const fetchTourDetails = async () => {
     const res = await adminApi.getTourById(id);
+    const data = await adminApi.getTourImages(id);
     setTour(res);
-    console.log("res", res);
+    setImg(data);
   };
   const fetchTourSchedules = async () => {
-    const res = await adminApi.getTourSchedulesByTourId(id);
-    setTourSchedules(res);
-    console.log("res schedule", tourSchedules);
-    console.log("res schedule", res);
+    const res = await adminApi.getTourScheduleByTourId(id);
+    setTourSchedules(
+      res.filter((schedule) => new Date(schedule.start_date) >= new Date())
+    );
+  };
+  const fetchTourItineraries = async () => {
+    const res = await tourItineraryApi.getByTourId(id);
+    console.log("itinerary", res);
+    setTourItineraries(res);
   };
   useEffect(() => {
     fetchTourDetails();
     fetchTourSchedules();
     fetchTourSchedules();
+    fetchTourItineraries();
   }, [id]);
   const handleScrollToDays = () => {
-    if (daySelectionRef.current) {
-      daySelectionRef.current.scrollIntoView({
-        behavior: "smooth", // scroll mượt
-        block: "start", // scroll tới đầu phần tử
-      });
-    }
+    const offset = 100; // số px muốn scroll thêm
+    window.scrollBy({
+      top: offset,
+      behavior: "smooth", // scroll mượt
+    });
   };
-  const Imgs = [
-    "https://swiperjs.com/demos/images/nature-1.jpg",
-    "https://swiperjs.com/demos/images/nature-2.jpg",
-    "https://swiperjs.com/demos/images/nature-3.jpg",
-    "https://swiperjs.com/demos/images/nature-4.jpg",
-    "https://swiperjs.com/demos/images/nature-5.jpg",
-    "https://swiperjs.com/demos/images/nature-6.jpg",
-  ];
+
   const handleSelecteDay = (tourSchedule) => {
     setModalShow(true);
     setScheduleSelected(tourSchedule);
@@ -115,10 +117,10 @@ const DetailTour = () => {
               slidesPerGroup={1} // mỗi lần cuộn 1 ảnh
               loop={true} // vòng lặp vô hạn
             >
-              {Imgs.map((img, index) => (
+              {img.map((img, index) => (
                 <SwiperSlide key={index}>
                   <img
-                    src={img}
+                    src={`${import.meta.env.VITE_API_URL}${img.img}`}
                     alt={`Slide ${index}`}
                     style={{
                       width: "100%",
@@ -139,20 +141,25 @@ const DetailTour = () => {
               loop={true}
               style={{ marginTop: "10px" }}
             >
-              {Imgs.map((img, index) => (
-                <SwiperSlide key={index}>
-                  <img
-                    src={img}
-                    alt={`Thumb ${index}`}
-                    style={{
-                      width: "100px",
-                      height: "60px",
-                      objectFit: "cover",
-                      cursor: "pointer",
-                    }}
-                  />
-                </SwiperSlide>
-              ))}
+              {img.map(
+                (i, index) => (
+                  console.log("img thumb", i),
+                  (
+                    <SwiperSlide key={index}>
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}${i.img}`}
+                        alt={`Thumb ${index}`}
+                        style={{
+                          width: "100px",
+                          height: "60px",
+                          objectFit: "cover",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </SwiperSlide>
+                  )
+                )
+              )}
             </Swiper>
           </div>
           <div className="departure-time-tour">
@@ -161,7 +168,7 @@ const DetailTour = () => {
               <span>
                 <strong>Thời gian khởi hành: </strong>
               </span>
-              <div className="day-container" ref={daySelectionRef}>
+              <div className="day-container">
                 {tourSchedules.map((tourSchedule, index) => (
                   <button
                     key={index}
@@ -174,14 +181,47 @@ const DetailTour = () => {
               </div>
             </div>
           </div>
-          <div className="schedule-content">
+          <div className="schedule-content ms-3">
             <h5 className="text-center mb-3 mt-1">Lịch trình</h5>
-            <ul>
-              <li>Day 1</li>
-              <li>Day 2</li>
-              <li>Day 3</li>
-              <li>Day 4</li>
-            </ul>
+            <div className="accordion" id="tourItineraryAccordion">
+              {tourItineraries.map((item, index) => (
+                <div className="accordion-item" key={index}>
+                  <h2 className="accordion-header" id={`heading${index}`}>
+                    <button
+                      className={`accordion-button ${
+                        index !== 0 ? "collapsed" : ""
+                      }`}
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target={`#collapse${index}`}
+                      aria-expanded={index === 0 ? "true" : "false"}
+                      aria-controls={`collapse${index}`}
+                    >
+                      <span>
+                        <strong>
+                          {"Ngày " +
+                            item.day_number +
+                            " : " +
+                            item.location_name}
+                        </strong>
+                        <br />
+                        <small className="text-muted">{item.title}</small>
+                      </span>
+                    </button>
+                  </h2>
+                  <div
+                    id={`collapse${index}`}
+                    className={`accordion-collapse collapse ${
+                      index === 0 ? "show" : ""
+                    }`}
+                    aria-labelledby={`heading${index}`}
+                    data-bs-parent="#tourItineraryAccordion"
+                  >
+                    <div className="accordion-body">{item.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
         <div className="right-content">
@@ -195,7 +235,7 @@ const DetailTour = () => {
           </div>
           <div className="d-flex justify-content-start fs-4">
             Khởi hành:{" "}
-            <strong className="text-primary fs-4">{tour.main_location}</strong>
+            <strong className="text-primary fs-4">{tour.location_name}</strong>
           </div>
           <div className="d-flex justify-content-start fs-4">
             {" "}
@@ -220,7 +260,7 @@ const DetailTour = () => {
 
       <div className="another-tour mb-3">
         <h5 className="text-center">Các chương trình khác</h5>
-        <AnotherTour />
+        <AnotherTour tourId={tour.id} />
       </div>
       <ModalBookTour
         tourSchedule={scheduleSelected}

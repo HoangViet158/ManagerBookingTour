@@ -36,21 +36,62 @@
         }
       }
     }
+
     .departure-time-tour {
       width: 70%;
+
       .day-container {
         display: flex; /* cho các button nằm ngang */
         gap: 10px; /* khoảng cách giữa button */
         max-width: 100%;
-        overflow: h0idden; /* PerfectScrollbar sẽ handle scroll */
+        overflow-x: auto; /* bật scroll ngang */
+        overflow-y: hidden; /* ẩn scroll dọc */
+        white-space: nowrap; /* giữ nút trên 1 hàng */
         position: relative;
-        padding-bottom: 20px;
-      }
-      .btn-day {
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        border: 1px solid rgb(152, 150, 150);
+        padding: 10px 0;
+
+        /* Scrollbar Chrome/Edge/Safari */
+        &::-webkit-scrollbar {
+          height: 6px;
+        }
+        &::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.3);
+          border-radius: 3px;
+        }
+        &::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 3px;
+        }
+
+        /* Scrollbar Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.1);
+
+        .btn-day {
+          flex: 0 0 auto; /* không co dãn */
+          padding: 6px 12px;
+          border-radius: 5px;
+          border: 1px solid #989696;
+          background-color: #fff;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background-color: #e6f7ff;
+            border-color: #00b3ff;
+            box-shadow: 0 0 10px rgba(0, 179, 255, 0.3);
+          }
+
+          &.active {
+            background-color: #00b3ff;
+            color: #fff;
+            border-color: #00b3ff;
+          }
+        }
       }
     }
+
     .schedule-content {
       width: 100%;
       li {
@@ -76,6 +117,7 @@
     padding: 10px 20px; // thêm padding cho đẹp
     text-align: center; // căn chữ giữa
     margin-right: 10%;
+
     .price-tour {
       color: #ff4d4f;
       font-size: 40px;
@@ -124,6 +166,7 @@
     }
   }
 }
+
 .another-tour {
   .custom-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;

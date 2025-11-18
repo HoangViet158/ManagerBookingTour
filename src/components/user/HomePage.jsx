@@ -6,204 +6,234 @@ import DateInput from "../../hooks/DateInput";
 import PriceRange from "../../hooks/PriceRange";
 import PerfectScrollbar from "perfect-scrollbar";
 import useEqualHeight from "../../hooks/useEqualHeight";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import adminApi from "../../services/adminApi";
+
 const HomePage = () => {
   const today = new Date().toISOString().split("T")[0];
   const navigate = useNavigate();
+
+  // GIÁ
   const [priceStart, setPriceStart] = useState(0);
-  const [priceEnd, setPriceEnd] = useState(1000000);
+  const [priceEnd, setPriceEnd] = useState(0);
+  const [priceMax, setPriceMax] = useState(0);
+
+  // REF 2 CỘT
   const rightRef = useRef(null);
   const leftRef = useRef(null);
-  const [vehicleSelected, setVehicleSelected] = useState("");
-  const [typeSelected, setTypeSelected] = useState("");
-  const [tours, setTours] = useState([
-    {
-      id: "",
-      code: "",
-      created_at: "",
-      duration_days: 0,
-      duration_nights: 0,
-      main_location: "",
-      main_location_id: "",
-      max_participants: 0,
-      min_participants: 0,
-      price: "0",
-      short_description: "",
-      status: "",
-      title: "",
-      updated_at: "",
-    },
-  ]);
+
+  // ĐIỂM ĐI - ĐIỂM ĐẾN
+  const [options, setOptions] = useState([]);
+  const [departure, setDeparture] = useState(null);
+  const [destination, setDestination] = useState(null);
+
+  // SEARCH TEXT & DATE
+  const [searchText, setSearchText] = useState("");
+  const [date, setDate] = useState(today);
+
+  // TOURS GỐC + TOURS HIỂN THỊ
+  const [allTours, setAllTours] = useState([]);
+  const [tours, setTours] = useState([]);
+
+  // ====== HÀM FILTER ======
+  const handleSearch = () => {
+    let filtered = [...allTours];
+
+    // 1. Lọc từ khóa
+    if (searchText.trim() !== "") {
+      filtered = filtered.filter((t) =>
+        t.title.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    // 2. Lọc điểm khởi hành
+    if (departure) {
+      filtered = filtered.filter((t) => t.main_location_id === departure.value);
+    }
+
+    // 3. Lọc điểm đến
+    if (destination) {
+      filtered = filtered.filter((t) => t.destination_id === destination.value);
+    }
+
+    // 4. Lọc ngày
+    filtered = filtered.filter((t) => {
+      return t.start_dates.some((d) => d >= date);
+    });
+
+    // 5. Lọc giá
+    filtered = filtered.filter((t) => {
+      const p = Number(t.price);
+      return p >= priceStart && p <= priceEnd;
+    });
+
+    console.log("All Tours: ", allTours);
+    console.log("Filtered Tours: ", filtered);
+    setTours(filtered);
+  };
+
+  // ===== SCROLLBAR =====
   useEffect(() => {
     const ps = new PerfectScrollbar(rightRef.current);
     return () => {
       ps.destroy();
     };
   }, []);
+
+  // ===== LẤY DATA TOUR + LOCATION =====
   useEffect(() => {
-    fetchTours(); // gọi async function
+    fetchTours();
+    fetchLocations();
   }, []);
 
   const fetchTours = async () => {
     try {
       const res = await adminApi.getTours();
-      console.log(res);
+      console.log("Fetched Tours: ", res);
+      setAllTours(res);
       setTours(res);
+
+      const maxPrice = Math.max(...res.map((t) => Number(t.price) || 0));
+      setPriceMax(maxPrice);
+      setPriceStart(0);
+      setPriceEnd(maxPrice);
     } catch (error) {
       console.error("Error fetching tours:", error);
     }
   };
+
+  const fetchLocations = async () => {
+    try {
+      const res = await adminApi.getLocations();
+      setOptions(
+        res.map((loc) => ({
+          value: loc.id,
+          label: loc.name,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
   const handleBtnDetailTour = (id) => {
     navigate(`/detail-tour/${id}`);
   };
+
   useEqualHeight(leftRef, rightRef);
-  const options = [
-    { value: "all", label: "Tất cả" },
-    { value: "apple", label: "Táo" },
-    { value: "banana", label: "Chuối" },
-    { value: "orange", label: "Cam" },
-  ];
-  const handleOnClickType = (value) => {
-    if (value === typeSelected) {
-      setTypeSelected("");
-    } else {
-      setTypeSelected(value);
-    }
-  };
-  const handleOnClickVehicle = (value) => {
-    if (value === vehicleSelected) {
-      setVehicleSelected("");
-    } else {
-      setVehicleSelected(value);
-    }
-  };
-  const [date, setDate] = useState(today);
+
   return (
     <div className="home-page">
       <div className="header-content">
         <img className="img-fluid" src={BannerImage} />
       </div>
+
       <div className="main-content">
+        {/* ===== LEFT FILTER ===== */}
         <div ref={leftRef} className="left-content">
-          <h1 className="fw-bolder ">Bộ lọc tìm kiếm</h1>
+          <h1 className="fw-bolder">Bộ lọc tìm kiếm</h1>
+
+          {/* TEXT SEARCH */}
+          <div className="form-group mb-3">
+            <span className="form-group-text fw-bolder">Từ khóa</span>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nhập tên tour..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+            />
+          </div>
+
+          {/* ĐIỂM KHỞI HÀNH */}
           <div className="departure form-group mb-3">
-            <span className="form-group-text fw-bolder" id="basic-addon1">
-              Điểm khởi hành
-            </span>
-            <Select options={options} defaultValue={options[0]} isSearchable />
+            <span className="form-group-text fw-bolder">Điểm khởi hành</span>
+            <Select
+              placeholder="Chọn điểm khởi hành"
+              options={options}
+              onChange={(v) => setDeparture(v)}
+              isSearchable
+            />
           </div>
+
+          {/* ĐIỂM ĐẾN */}
           <div className="destination form-group mb-3">
-            <span className="form-group-text fw-bolder" id="basic-addon1">
-              Điểm đến
-            </span>
-            <Select options={options} defaultValue={options[0]} isSearchable />
+            <span className="form-group-text fw-bolder">Điểm đến</span>
+            <Select
+              placeholder="Chọn điểm đến"
+              options={options}
+              onChange={(v) => setDestination(v)}
+              isSearchable
+            />
           </div>
+
+          {/* NGÀY */}
           <div className="date form-group mb-3">
-            <span className="form-group-text fw-bolder" id="basic-addon1">
-              Ngày bắt đầu
-            </span>
+            <span className="form-group-text fw-bolder">Ngày bắt đầu</span>
             <DateInput value={date} onChange={setDate} />
           </div>
-          <div className="tour-type mb-3">
-            <span className="fw-bolder"> Dòng Tour</span>
-            <div>
-              <button
-                onClick={() => handleOnClickType("Cao cấp")}
-                className={`btn btn-custom ${
-                  typeSelected === "Cao cấp" ? "btn-selected" : ""
-                }`}
-              >
-                Cao cấp
-              </button>
-              <button
-                onClick={() => handleOnClickType("Tiêu chuẩn")}
-                className={`btn btn-custom ${
-                  typeSelected === "Tiêu chuẩn" ? "btn-selected" : ""
-                }`}
-              >
-                Tiêu chuẩn
-              </button>
-              <button
-                onClick={() => handleOnClickType("Giá tốt")}
-                className={`btn btn-custom ${
-                  typeSelected === "Giá tốt" ? "btn-selected" : ""
-                }`}
-              >
-                Giá tốt
-              </button>
-              <button
-                onClick={() => handleOnClickType("Tiết kiệm")}
-                className={`btn btn-custom ${
-                  typeSelected === "Tiết kiệm" ? "btn-selected" : ""
-                }`}
-              >
-                Tiết kiệm
-              </button>
-            </div>
-          </div>
-          <div className="vehicle mb-3">
-            <div>
-              <span className="fw-bolder">Phương tiện</span>
-            </div>
-            <button
-              onClick={() => handleOnClickVehicle("Xe khách")}
-              className={`btn btn-custom ${
-                vehicleSelected === "Xe khách" ? "btn-selected" : ""
-              }`}
-            >
-              Xe khách
-            </button>
-            <button
-              onClick={() => handleOnClickVehicle("Máy bay")}
-              className={`btn btn-custom ${
-                vehicleSelected === "Máy bay" ? "btn-selected" : ""
-              }`}
-            >
-              Máy bay
-            </button>
-          </div>
+
+          {/* GIÁ TỪ */}
           <div className="price-range form-group mb-3">
-            <span className="form-group-text fw-bolder" id="basic-addon1">
-              {" "}
-              Giá từ:{" "}
-            </span>
-            <PriceRange price={priceStart} setPrice={setPriceStart} />
+            <span className="form-group-text fw-bolder">Giá từ:</span>
+            <PriceRange
+              maxPrice={priceMax}
+              price={priceStart}
+              setPrice={setPriceStart}
+            />
           </div>
+
+          {/* GIÁ ĐẾN */}
           <div className="price-range form-group mb-3">
-            <span className="form-group-text fw-bolder" id="basic-addon1">
-              {" "}
-              Giá đến:{" "}
-            </span>
-            <PriceRange price={priceEnd} setPrice={setPriceEnd} />
+            <span className="form-group-text fw-bolder">Giá đến:</span>
+            <PriceRange
+              maxPrice={priceMax}
+              price={priceEnd}
+              setPrice={setPriceEnd}
+            />
           </div>
-          <button className="btn btn-primary text-center w-100  ">
+
+          {/* BUTTONS */}
+          <button
+            className="btn btn-primary text-center w-100"
+            onClick={handleSearch}
+          >
             Tìm kiếm
           </button>
+
+          <button className="btn btn-secondary w-100 mt-2" onClick={fetchTours}>
+            Reset bộ lọc
+          </button>
         </div>
+
+        {/* ===== RIGHT LIST ===== */}
         <div
           className="right-content"
           ref={rightRef}
-          style={{
-            overflow: "hidden",
-            position: "relative",
-          }}
+          style={{ overflow: "hidden", position: "relative" }}
         >
           <h2>Tour du lịch</h2>
+
           {tours.map((tour, index) => (
             <div key={index} className="card mb-3" style={{ width: "100%" }}>
               <img
                 className="card-img-top"
-                src={BannerImage}
-                alt="Card image cap"
+                src={
+                  tour.img && tour.img.length > 0
+                    ? `${import.meta.env.VITE_API_URL}${tour.img[0]}`
+                    : BannerImage
+                }
+                alt="Tour Img"
               />
+
               <div className="card-body">
                 <h5 className="card-title">{tour.title}</h5>
                 <p className="card-text">
                   {tour.short_description || "Mô tả ngắn về tour du lịch"}
                 </p>
+
                 <button
-                  className="me-4 nav-icon btn btn-primary"
+                  className="btn btn-primary"
                   onClick={() => handleBtnDetailTour(tour.id)}
                 >
                   Xem chi tiết

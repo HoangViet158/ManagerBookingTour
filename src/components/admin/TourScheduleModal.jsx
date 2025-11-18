@@ -31,6 +31,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
   const [itineraryPage, setItineraryPage] = useState(1);
   const itemsPerPage = 5;
 
+  // Load data from API
   const loadData = async () => {
     if (!tour) return;
     try {
@@ -49,20 +50,22 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     if (show) loadData();
   }, [show, tour]);
 
+  // Add departure
   const addDeparture = async () => {
     if (!startDate || !seatTotal) return alert("Nhập ngày và số chỗ");
     try {
       await tourApi.addSchedule({
         tour_id: tour.id,
-        start_date: dayjs(startDate).format("YYYY-MM-DD"),
+        start_date: dayjs(startDate).format("YYYY-MM-DDTHH:mm:ss"),
         end_date: dayjs(startDate)
           .add(tour.duration_days - 1, "day")
-          .format("YYYY-MM-DD"),
+          .format("YYYY-MM-DDTHH:mm:ss"),
         seats_total: seatTotal,
         seats_booked: 0,
         price_per_person: price,
         status: "open",
       });
+      // reset form
       setStartDate("");
       setSeatTotal(0);
       setPrice(0);
@@ -72,6 +75,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
+  // Delete departure
   const deleteDeparture = async (id) => {
     if (!window.confirm("Xác nhận xóa?")) return;
     try {
@@ -82,11 +86,12 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
+  // Add itinerary
   const addItinerary = async () => {
     if (!dayNumber || !title || !locationId)
       return alert("Nhập đầy đủ thông tin");
     try {
-      await tourItineraryApi.addItinerary({
+      await tourItineraryApi.add({
         tour_id: tour.id,
         day_number: dayNumber,
         title,
@@ -103,10 +108,11 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
+  // Delete itinerary
   const deleteItinerary = async (id) => {
     if (!window.confirm("Xác nhận xóa?")) return;
     try {
-      await tourItineraryApi.deleteItinerary(id);
+      await tourItineraryApi.delete(id);
       loadData();
     } catch (err) {
       console.error(err);
@@ -132,9 +138,9 @@ export default function TourScheduleModal({ show, onClose, tour }) {
               <Form.Group className="col-md-4">
                 <Form.Label>Ngày khởi hành</Form.Label>
                 <Form.Control
-                  type="date"
+                  type="datetime-local"
                   value={startDate}
-                  min={dayjs().format("YYYY-MM-DD")}
+                  min={dayjs().format("YYYY-MM-DDTHH:mm")}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </Form.Group>
@@ -176,8 +182,8 @@ export default function TourScheduleModal({ show, onClose, tour }) {
               <tbody>
                 {paginate(departures, departurePage).map((d) => (
                   <tr key={d.id}>
-                    <td>{dayjs(d.start_date).format("DD/MM/YYYY")}</td>
-                    <td>{dayjs(d.end_date).format("DD/MM/YYYY")}</td>
+                    <td>{dayjs(d.start_date).format("DD/MM/YYYY HH:mm")}</td>
+                    <td>{dayjs(d.end_date).format("DD/MM/YYYY HH:mm")}</td>
                     <td>{d.seats_total}</td>
                     <td>{d.seats_booked}</td>
                     <td>{d.price_per_person}</td>

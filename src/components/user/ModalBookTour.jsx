@@ -35,7 +35,9 @@ const ModalBookTour = (props) => {
             <span>
               Ngày đi: {dayjs(tourSchedule.start_date).format("DD/MM/YYYY")}
             </span>
-            <span>Giờ khởi hành: 8h30</span>
+            <span>
+              Giờ khởi hành: {dayjs(tourSchedule.start_date).format("HH:MM")}
+            </span>
           </div>
           <div className="timeline text-center">
             <span>Xe khách {<FaBus />}</span>
@@ -45,7 +47,7 @@ const ModalBookTour = (props) => {
             <span>
               Ngày về: {dayjs(tourSchedule.end_date).format("DD/MM/YYYY")}
             </span>
-            <span>Giờ về: 8h30</span>
+            <span>Giờ về: {dayjs(tourSchedule.end_date).format("HH:MM")}</span>
           </div>
         </div>
 
@@ -64,7 +66,9 @@ const ModalBookTour = (props) => {
                 </span>
                 :{" "}
               </span>
-              <span className="text-danger">{FormatCurrency(4000000)}</span>
+              <span className="text-danger">
+                {FormatCurrency(tourSchedule.price_per_person)}
+              </span>
             </div>
             <div className="fw-bold">
               <span>
@@ -74,7 +78,9 @@ const ModalBookTour = (props) => {
                 </span>
                 :{" "}
               </span>
-              <span className="text-danger">{FormatCurrency(2000000)}</span>
+              <span className="text-danger">
+                {FormatCurrency(tourSchedule.price_per_person * 0.5)}
+              </span>
             </div>
           </div>
         </div>
@@ -86,7 +92,7 @@ const ModalBookTour = (props) => {
         <Button onClick={props.onHide}>Chọn ngày khác</Button>
         <Button
           className="btn btn-success"
-          onClick={() => navigate("/booking-tour")}
+          onClick={() => navigate("/booking-tour/" + tourSchedule.id)}
         >
           Đặt ngay
         </Button>

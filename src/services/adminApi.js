@@ -25,10 +25,12 @@ const adminApi = {
   // Tour
   addTour: (data) => instance.post(`${BASE_URL}/tours`, data),
   getTours: () => instance.get(`${BASE_URL}/tours`),
-  getTourById: (id) => instance.get(`${BASE_URL}/tours/${id}`),
+  getTourById: (id) => instance.get(`tours/${id}`),
   updateTour: (id, data) => instance.put(`${BASE_URL}/tours/${id}`, data),
   deleteTour: (id) => instance.delete(`${BASE_URL}/tours/${id}`),
   deleteTourImage: (id) => instance.delete(`${BASE_URL}/tours/images/${id}`),
+  getTourImages: (tourId) => instance.get(`${BASE_URL}/tours/${tourId}/images`),
+  getTourRandom: (id) => instance.get(`${BASE_URL}/tours/${id}/other-tours`),
   // User
   addUser: (data) => instance.post(`${BASE_URL}/users/add-user`, data),
   getUsers: () => instance.get(`${BASE_URL}/users`),
@@ -81,6 +83,8 @@ const adminApi = {
   // 🔹 Lấy lịch theo tour_id
   getTourScheduleByTourId: (tourId) =>
     instance.get(`${BASE_URL}/tour-schedules/${tourId}`),
+  getTourScheduleById: (id) =>
+    instance.get(`${BASE_URL}/tour-schedules/get_schedule_by_id/${id}`),
 
   // 🔹 Thêm lịch tour
   addSchedule: (data) =>
@@ -97,6 +101,10 @@ const adminApi = {
   // getTourSchedulesByTourId: (tourId) =>
   //   instance.get(`${BASE_URL}/tour-schedules/${tourId}`),
 
+  // đặt tour
+  bookingTour: (data) =>
+    instance.post(`${BASE_URL}/bookings/create-full`, data),
+  // data = { customer_id, schedule_id, custom_tour_id, qty_adults, qty_children, total_amount, note }
   // Invoice
   getInvoices: () => instance.get(`${BASE_URL}/invoices`),
 
