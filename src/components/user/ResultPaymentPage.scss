@@ -1,0 +1,98 @@
+/* PaymentResultPage.scss - Phiên bản Cải Tiến */
+
+/* Container ngoài cùng - Giữ nguyên các thuộc tính căn chỉnh ban đầu */
+.custom-payment-result {
+  margin-top: 5%;
+  height: 55vh; /* Chiều cao container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* Căn giữa nội dung .payment-result trong container này */
+
+  .payment-result {
+    /* Khối nội dung chính - Giờ sẽ được tạo kiểu nổi bật */
+    display: flex; /* Bắt buộc để căn chỉnh các phần tử bên trong */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    /* Tối ưu hóa giao diện */
+    max-width: 450px; /* Giới hạn chiều rộng để nội dung không quá dài */
+    width: 90%;
+    padding: 40px 30px;
+    border-radius: 16px; /* Bo góc mềm mại hơn */
+    background-color: #ffffff; /* Nền trắng */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Bóng đổ sâu hơn, chuyên nghiệp */
+    font-family: "Poppins", sans-serif; /* Thay đổi font chữ hiện đại hơn */
+    min-height: auto; /* Bỏ min-height 70vh ở đây để nó co giãn theo nội dung */
+    text-align: center;
+
+    h2 {
+      font-size: 2.5rem; /* Phóng to tiêu đề */
+      margin-bottom: 1.2rem;
+      font-weight: 700; /* In đậm */
+      line-height: 1.2;
+
+      &.success {
+        color: #198754; /* Xanh lá cây đậm hơn, sang trọng */
+        // Thêm icon giả định
+        &::before {
+          content: "✓";
+          display: block;
+          font-size: 3rem;
+          color: #198754;
+          margin-bottom: 15px;
+        }
+      }
+
+      &.failed {
+        color: #dc3545; /* Đỏ giữ nguyên */
+        &::before {
+          content: "✗";
+          display: block;
+          font-size: 3rem;
+          color: #dc3545;
+          margin-bottom: 15px;
+        }
+      }
+
+      &.pending {
+        color: #ffc107; /* Vàng giữ nguyên */
+        &::before {
+          content: "..."; // Hoặc icon loading
+          display: block;
+          font-size: 3rem;
+          color: #ffc107;
+          margin-bottom: 15px;
+        }
+      }
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #495057; /* Màu chữ xám tối hơn */
+      margin-bottom: 3rem; /* Tăng khoảng cách dưới */
+      line-height: 1.5;
+    }
+
+    .btn-back-home {
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.8rem 2.5rem; /* Tăng kích thước nút */
+      border-radius: 50px; /* Bo tròn hoàn toàn */
+      border: none;
+      background-color: #007bff; /* Màu xanh dương hiện đại */
+      color: white;
+      text-decoration: none; /* Quan trọng nếu là thẻ <a> */
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Hiệu ứng mượt mà hơn */
+
+      &:hover {
+        transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ */
+        box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+        background-color: #0069d9;
+      }
+    }
+  }
+}

@@ -79,7 +79,7 @@ const DetailTour = () => {
   };
   const fetchTourItineraries = async () => {
     const res = await tourItineraryApi.getByTourId(id);
-    console.log("itinerary", res);
+    // console.log("itinerary", res);
     setTourItineraries(res);
   };
   useEffect(() => {
@@ -141,25 +141,20 @@ const DetailTour = () => {
               loop={true}
               style={{ marginTop: "10px" }}
             >
-              {img.map(
-                (i, index) => (
-                  console.log("img thumb", i),
-                  (
-                    <SwiperSlide key={index}>
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}${i.img}`}
-                        alt={`Thumb ${index}`}
-                        style={{
-                          width: "100px",
-                          height: "60px",
-                          objectFit: "cover",
-                          cursor: "pointer",
-                        }}
-                      />
-                    </SwiperSlide>
-                  )
-                )
-              )}
+              {img.map((i, index) => (
+                <SwiperSlide key={index}>
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}${i.img}`}
+                    alt={`Thumb ${index}`}
+                    style={{
+                      width: "100px",
+                      height: "60px",
+                      objectFit: "cover",
+                      cursor: "pointer",
+                    }}
+                  />
+                </SwiperSlide>
+              ))}
             </Swiper>
           </div>
           <div className="departure-time-tour">

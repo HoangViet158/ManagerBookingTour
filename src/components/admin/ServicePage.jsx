@@ -68,7 +68,7 @@ export default function ServicesPage() {
               <th>Loại dịch vụ</th>
               <th>Tên dịch vụ</th>
               {/* <th>Nhà cung cấp</th> */}
-              <th>Chi tiết</th>
+              <th className="w-50">Chi tiết</th>
               <th>Giá</th>
               <th>Hành động</th>
             </tr>

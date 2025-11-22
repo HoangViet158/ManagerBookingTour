@@ -8,7 +8,16 @@ function UserModal({ show, onHide, user, onSuccess }) {
     password: "",
     role: "",
   });
+  const [roles, setRoles] = useState([]);
 
+  const fetchRole = async () => {
+    const res = await adminApi.getRoles();
+    console.log("Roles:", res);
+    setRoles(res);
+  };
+  useEffect(() => {
+    fetchRole();
+  }, []);
   useEffect(() => {
     if (user) {
       setFormData({
@@ -81,9 +90,13 @@ function UserModal({ show, onHide, user, onSuccess }) {
               value={formData.role}
               onChange={handleChange}
             >
-              <option value="">-- Chọn quyền --</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
+              {roles
+                .filter((role) => role.id !== 1) // loại bỏ admin
+                .map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name}
+                  </option>
+                ))}
             </Form.Select>
           </Form.Group>
         </Form>

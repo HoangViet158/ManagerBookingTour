@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChangePasswordModal from "./ChangePasswordModal";
+import useAuth from "../../hooks/useAuth";
+import adminApi from "../../services/adminApi";
+import { toast } from "react-toastify";
 
 /**
  * UserInfoForm - form thông tin người dùng
@@ -18,14 +21,58 @@ const ProfileInformation = () => {
   const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
-
+  const { user } = useAuth();
   const handleChange = (field, value) => {
     setForm((s) => ({ ...s, [field]: value }));
     // clear error for field while editing
     setErrors((e) => ({ ...e, [field]: undefined }));
     setSuccessMsg("");
   };
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+  };
+  const fetchUserInfo = async () => {
+    if (!user) return;
+    if (user?.cus_id) {
+      try {
+        const res = await adminApi.getCustomerById(user.cus_id);
+        if (!res) return;
 
+        setForm({
+          fullName: res.full_name ?? "",
+          email: res.user_email ?? "",
+          dob: formatDate(res.birthday),
+          phone: res.phone ?? "",
+          address: res.address ?? "",
+        });
+      } catch (error) {
+        console.error("❌ Error loading customer info:", error);
+        toast.error("Không thể tải thông tin người dùng");
+      }
+    }
+    if (user?.emp_id) {
+      try {
+        const res = await adminApi.getEmployeeById(user.emp_id);
+        if (!res) return;
+
+        setForm({
+          fullName: res.full_name ?? "",
+          email: res.user_email ?? "",
+          dob: formatDate(res.birthday),
+          phone: res.phone ?? "",
+          address: res.address ?? "",
+        });
+      } catch (error) {
+        console.error("❌ Error loading customer info:", error);
+        toast.error("Không thể tải thông tin người dùng");
+      }
+    }
+  };
+  useEffect(() => {
+    fetchUserInfo();
+  }, [user]);
   const validate = () => {
     const e = {};
     if (!form.fullName.trim()) e.fullName = "Họ tên là bắt buộc.";
@@ -55,8 +102,15 @@ const ProfileInformation = () => {
     }
     // xử lý submit (gửi API hoặc xử lý khác)
     // tại đây demo bằng console.log
-    console.log("Submitted user info:", form);
-    setSuccessMsg("Lưu thông tin thành công!");
+    const res = adminApi.updateCustomer(user.cus_id, {
+      user_id: user.id,
+      full_name: form.fullName,
+      phone: form.phone,
+      birthday: form.dob,
+      address: form.address,
+    });
+    console.log("Submitted user info:", res);
+    toast.success("Lưu thông tin thành công!");
   };
 
   // const handleChangePassword = () => {
@@ -98,6 +152,7 @@ const ProfileInformation = () => {
               value={form.email}
               onChange={(e) => handleChange("email", e.target.value)}
               placeholder="email@example.com"
+              disabled
             />
             {errors.email && (
               <div className="invalid-feedback">{errors.email}</div>
@@ -111,6 +166,7 @@ const ProfileInformation = () => {
               type="date"
               className={`form-control ${invalidClass("dob")}`}
               value={form.dob}
+              max={new Date().toISOString().split("T")[0]}
               onChange={(e) => handleChange("dob", e.target.value)}
             />
             {errors.dob && <div className="invalid-feedback">{errors.dob}</div>}
@@ -157,7 +213,7 @@ const ProfileInformation = () => {
           >
             Đổi mật khẩu
           </button> */}
-          <ChangePasswordModal />
+          <ChangePasswordModal userId={user?.id} />
 
           <button type="submit" className="btn btn-primary">
             Lưu thông tin

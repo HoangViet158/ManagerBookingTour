@@ -5,10 +5,24 @@ import "./ModalBookTour.scss";
 import FormatCurrency from "../../hooks/FormatCurrency";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
-
+import useAuth from "../../hooks/useAuth";
+import { toast } from "react-toastify";
 const ModalBookTour = (props) => {
   const { tourSchedule, ...modalProps } = props;
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const handleBookNow = () => {
+    if (tourSchedule.seats_total - tourSchedule.seats_booked <= 0) {
+      toast.error("Rất tiếc, tour đã hết chỗ.");
+      return;
+    }
+    if (user === null) {
+      toast.error("Vui lòng đăng nhập để đặt tour");
+      navigate("/login");
+      return;
+    }
+    navigate("/booking-tour/" + tourSchedule.id);
+  };
   return (
     <Modal
       {...modalProps}
@@ -25,8 +39,12 @@ const ModalBookTour = (props) => {
       <Modal.Body>
         <div className="text-center">
           <h3>
-            {dayjs(tourSchedule.start_date).format("DD/MM/YYYY")}(Còn lại{" "}
-            {tourSchedule.seats_total - tourSchedule.seats_booked} chỗ){" "}
+            {dayjs(tourSchedule.start_date).format("DD/MM/YYYY")}
+            {tourSchedule.seats_total - tourSchedule.seats_booked > 0
+              ? "(Còn lại " +
+                (tourSchedule.seats_total - tourSchedule.seats_booked) +
+                " chỗ)"
+              : "(Hết chỗ)"}
           </h3>
         </div>
         <h5 className="text-primary">Phương tiện di chuyển:</h5>
@@ -90,10 +108,7 @@ const ModalBookTour = (props) => {
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={props.onHide}>Chọn ngày khác</Button>
-        <Button
-          className="btn btn-success"
-          onClick={() => navigate("/booking-tour/" + tourSchedule.id)}
-        >
+        <Button className="btn btn-success" onClick={() => handleBookNow()}>
           Đặt ngay
         </Button>
       </Modal.Footer>

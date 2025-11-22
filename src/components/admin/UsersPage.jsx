@@ -4,6 +4,7 @@ import adminApi from "../../services/adminApi";
 import UserModal from "./UserModal";
 import AssignUserModal from "./AssignUserModal";
 import ResetPasswordModal from "./ResetPasswordModal";
+import { toast } from "react-toastify";
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [modalShow, setModalShow] = useState(false);
@@ -20,7 +21,7 @@ export default function UsersPage() {
     const userList = res.map((user) => ({
       id: user.id,
       email: user.email,
-      role: user.role_id === 1 ? "Admin" : "User",
+      role: user.role_name,
       createdAt: new Date(user.created_at).toLocaleDateString("vi-VN"),
       updatedAt: new Date(user.updated_at).toLocaleDateString("vi-VN"),
     }));
@@ -72,6 +73,8 @@ export default function UsersPage() {
       try {
         await adminApi.deleteUser(user.id);
         setUsers(users.filter((u) => u.id !== user.id));
+        fetchCustomersWithoutUser();
+        fetchEmployeesWithoutUser();
       } catch (err) {
         console.error("❌ Lỗi xóa user:", err);
         alert("Lỗi khi xóa user");
@@ -164,6 +167,7 @@ export default function UsersPage() {
           fetchUsers();
           fetchCustomersWithoutUser();
           fetchEmployeesWithoutUser();
+          toast.success("Cấp tài khoản thành công");
         }}
       />
       {/* Modal xác nhận */}

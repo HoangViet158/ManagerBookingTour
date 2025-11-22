@@ -21,7 +21,12 @@ const adminApi = {
   getServiceById: (id) => instance.get(`${BASE_URL}/services/${id}`),
   updateService: (id, data) => instance.put(`${BASE_URL}/services/${id}`, data),
   deleteService: (id) => instance.delete(`${BASE_URL}/services/${id}`),
-
+  getServiceByTourId: (id) => instance.get(`${BASE_URL}/tour-services/${id}`),
+  deleleServiceFromTour: (id) =>
+    instance.delete(`${BASE_URL}/tour-services/${id}`),
+  addToTour: (data) => {
+    instance.post(`${BASE_URL}/tour-services/add-tour-service`, data);
+  },
   // Tour
   addTour: (data) => instance.post(`${BASE_URL}/tours`, data),
   getTours: () => instance.get(`${BASE_URL}/tours`),
@@ -38,7 +43,11 @@ const adminApi = {
   deleteUser: (id) => instance.delete(`${BASE_URL}/users/${id}`),
   getUserById: (id) => instance.get(`${BASE_URL}/users/${id}`),
   ResetPassword: (id) => instance.put(`${BASE_URL}/users/${id}/reset-password`),
-
+  ChangPassword: (id, data) =>
+    instance.put(`${BASE_URL}/users/${id}/reset-password`, data),
+  //check password
+  checkPassword: (id, data) =>
+    instance.post(`/auth/check_password/${id}`, data),
   // Employee
   getEmployees: () => instance.get(`${BASE_URL}/employees`),
   getEmployeesWithoutUser: () =>
@@ -76,10 +85,15 @@ const adminApi = {
   deleteCustomer: (id, data) =>
     instance.delete(`${BASE_URL}/customers/${id}`, { data }),
   getCustomersWithoutUser: () => instance.get(`${BASE_URL}/customers/no-user`),
+
+  // lấy cus theo id
+  getCustomerById: (id) => instance.get(`${BASE_URL}/customers/${id}`),
   //Tour Schedule
   // 🔹 Lấy tất cả lịch tour
   getAllTourSchedule: () => instance.get(`${BASE_URL}/tour-schedules`),
 
+  getTourScheduleByUserId: (id) =>
+    instance.get(`${BASE_URL}/tour-schedules/user/${id}`),
   // 🔹 Lấy lịch theo tour_id
   getTourScheduleByTourId: (tourId) =>
     instance.get(`${BASE_URL}/tour-schedules/${tourId}`),
@@ -105,11 +119,24 @@ const adminApi = {
   bookingTour: (data) =>
     instance.post(`${BASE_URL}/bookings/create-full`, data),
   // data = { customer_id, schedule_id, custom_tour_id, qty_adults, qty_children, total_amount, note }
+  // Payment
+  getStatusPayments: (bookingCode) =>
+    instance.get(`${BASE_URL}/bookings/booking-status/${bookingCode}`),
   // Invoice
   getInvoices: () => instance.get(`${BASE_URL}/invoices`),
-
+  getInvoiceById: (id) => instance.get(`${BASE_URL}/invoices/${id}`),
+  getInvoiceByUserId: (userId) =>
+    instance.get(`${BASE_URL}/invoices/user/${userId}`),
   // permission
   getAllPermission: () => instance.get(`${BASE_URL}/permissions`),
+  // roles
+  getRoles: () => instance.get(`${BASE_URL}/roles`),
+
+  // thống kê
+  getRevenue: (month, year) =>
+    instance.get(
+      `${BASE_URL}/invoices/stats/revenue?month=${month}&year=${year}`
+    ),
 };
 
 export default adminApi;

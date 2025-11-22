@@ -9,7 +9,7 @@ const UserLayout = () => {
       <div className="header">
         <Header />
       </div>
-      <div className="body-content">
+      <div className="body-content ">
         <Outlet />
       </div>
       <div className="footer">

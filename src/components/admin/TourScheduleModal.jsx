@@ -11,36 +11,44 @@ import {
 import tourApi from "../../services/adminApi";
 import tourItineraryApi from "../../services/tourItineraryApi";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
 
 export default function TourScheduleModal({ show, onClose, tour }) {
+  // ==== State ====
   const [departures, setDepartures] = useState([]);
   const [itineraries, setItineraries] = useState([]);
   const [locations, setLocations] = useState([]);
+  const [services, setServices] = useState([]); // tất cả dịch vụ
+  const [tourServices, setTourServices] = useState([]); // dịch vụ tour
 
   const [startDate, setStartDate] = useState("");
   const [seatTotal, setSeatTotal] = useState(0);
   const [price, setPrice] = useState(0);
-
   const [dayNumber, setDayNumber] = useState(1);
   const [title, setTitle] = useState("");
   const [activity, setActivity] = useState("");
   const [locationId, setLocationId] = useState("");
 
-  // Pagination state
   const [departurePage, setDeparturePage] = useState(1);
   const [itineraryPage, setItineraryPage] = useState(1);
+  const [servicePage, setServicePage] = useState(1);
   const itemsPerPage = 5;
 
-  // Load data from API
+  // ==== Load data từ API ====
   const loadData = async () => {
     if (!tour) return;
     try {
       const depRes = await tourApi.getTourScheduleByTourId(tour.id);
       const itinRes = await tourItineraryApi.getByTourId(tour.id);
-      const locRes = await tourApi.getLocations(); // API trả về tất cả địa điểm
+      const locRes = await tourApi.getLocations();
+      const servRes = await tourApi.getServices();
+      const tourServRes = await tourApi.getServiceByTourId(tour.id);
+
       setDepartures(depRes);
       setItineraries(itinRes);
       setLocations(locRes);
+      setServices(servRes);
+      setTourServices(tourServRes);
     } catch (err) {
       console.error("❌ Lỗi load data:", err);
     }
@@ -50,7 +58,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     if (show) loadData();
   }, [show, tour]);
 
-  // Add departure
+  // ==== Departures ====
   const addDeparture = async () => {
     if (!startDate || !seatTotal) return alert("Nhập ngày và số chỗ");
     try {
@@ -65,7 +73,6 @@ export default function TourScheduleModal({ show, onClose, tour }) {
         price_per_person: price,
         status: "open",
       });
-      // reset form
       setStartDate("");
       setSeatTotal(0);
       setPrice(0);
@@ -75,7 +82,6 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
-  // Delete departure
   const deleteDeparture = async (id) => {
     if (!window.confirm("Xác nhận xóa?")) return;
     try {
@@ -86,7 +92,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
-  // Add itinerary
+  // ==== Itineraries ====
   const addItinerary = async () => {
     if (!dayNumber || !title || !locationId)
       return alert("Nhập đầy đủ thông tin");
@@ -108,7 +114,6 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
-  // Delete itinerary
   const deleteItinerary = async (id) => {
     if (!window.confirm("Xác nhận xóa?")) return;
     try {
@@ -119,12 +124,49 @@ export default function TourScheduleModal({ show, onClose, tour }) {
     }
   };
 
-  // Pagination helper
+  // ==== Services ====
+  const addServiceToTour = async (serviceId) => {
+    // Lấy service muốn thêm
+    const serviceToAdd = services.find((s) => s.id === serviceId);
+    if (!serviceToAdd) return;
+
+    // Kiểm tra điều kiện
+    if (
+      serviceToAdd.type === "transport" &&
+      tourServices.some((ts) => ts.type === "transport")
+    ) {
+      return toast.error(
+        "Chỉ được thêm 1 dịch vụ loại transport cho mỗi tour!"
+      );
+    }
+    try {
+      await tourApi.addToTour({
+        tour_id: tour.id,
+        service_id: serviceId,
+      });
+      loadData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const removeServiceFromTour = async (id) => {
+    if (!window.confirm("Xác nhận xóa dịch vụ khỏi tour?")) return;
+    try {
+      await tourApi.deleleServiceFromTour(id);
+      loadData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ==== Pagination helper ====
   const paginate = (items, page) => {
     const start = (page - 1) * itemsPerPage;
     return items.slice(start, start + itemsPerPage);
   };
 
+  // ==== Render ====
   return (
     <Modal show={show} onHide={onClose} size="xl">
       <Modal.Header closeButton>
@@ -132,7 +174,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
       </Modal.Header>
       <Modal.Body>
         <Tabs defaultActiveKey="depart">
-          {/* TAB 1: Chuyến khởi hành */}
+          {/* Tab 1: Chuyến khởi hành */}
           <Tab eventKey="depart" title="Chuyến khởi hành">
             <Form className="row g-2 mt-3">
               <Form.Group className="col-md-4">
@@ -217,7 +259,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
             </Pagination>
           </Tab>
 
-          {/* TAB 2: Lịch trình chi tiết */}
+          {/* Tab 2: Lịch trình chi tiết */}
           <Tab eventKey="detail" title="Lịch trình chi tiết">
             <Form className="row g-2 mt-3">
               <Form.Group className="col-md-2">
@@ -305,6 +347,68 @@ export default function TourScheduleModal({ show, onClose, tour }) {
                     key={i + 1}
                     active={i + 1 === itineraryPage}
                     onClick={() => setItineraryPage(i + 1)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                )
+              )}
+            </Pagination>
+          </Tab>
+
+          {/* Tab 3: Dịch vụ tour */}
+          <Tab eventKey="services" title="Dịch vụ tour">
+            <Table striped bordered className="mt-3">
+              <thead>
+                <tr>
+                  <th>Tên dịch vụ</th>
+                  {/* <th>Mô tả</th> */}
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginate(services, servicePage).map((s) => {
+                  const attachedService = tourServices.find(
+                    (ts) => ts.service_id === s.id
+                  );
+                  return (
+                    <tr key={s.id}>
+                      <td>{s.name}</td>
+                      {/* <td>{s.description}</td> */}
+                      <td>
+                        {attachedService ? (
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() =>
+                              removeServiceFromTour(attachedService.id)
+                            }
+                          >
+                            Xóa
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="success"
+                            size="sm"
+                            onClick={() => addServiceToTour(s.id)}
+                          >
+                            Thêm
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
+
+            <Pagination>
+              {Array.from(
+                { length: Math.ceil(services.length / itemsPerPage) },
+                (_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={i + 1 === servicePage}
+                    onClick={() => setServicePage(i + 1)}
                   >
                     {i + 1}
                   </Pagination.Item>

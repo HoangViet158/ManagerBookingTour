@@ -35,6 +35,33 @@ const BookingTourPage = () => {
   useEffect(() => {
     fetchTourSchedule();
   }, []);
+  const fetchInfo = async (user) => {
+    if (!user) return;
+    if (user.cus_id) {
+      const res = await adminApi.getCustomerById(user.cus_id);
+      console.log(res);
+      setContactInfo({
+        name: res.full_name,
+        email: res.user_email,
+        phone: res.phone,
+        address: res.address || "",
+      });
+    }
+    if (user.emp_id) {
+      const res = await adminApi.getEmployeeById(user.emp_id);
+      console.log(res);
+      setContactInfo({
+        name: res.full_name,
+        email: res.user_email,
+        phone: res.phone,
+        address: res.address || "",
+      });
+    }
+  };
+  useEffect(() => {
+    console.log(user);
+    fetchInfo(user);
+  }, [user]);
   useEffect(() => {
     totalPrice.current =
       adultInfo.length * adultPrice + childInfo.length * childPrice;
@@ -162,13 +189,16 @@ const BookingTourPage = () => {
       })),
     ];
     console.log("Passengers:", totalPrice.current, passengers);
+    if (!user?.id) {
+      return;
+    }
     // Tạo payload gửi API
     const payload = {
-      customer_id: user.cus_id, // hoặc contactInfo.id nếu có
+      user_id: user.id, // hoặc contactInfo.id nếu có
       schedule_id: id,
       custom_tour_id: null,
-      qty_adults: adultInfo.length,
-      qty_children: childInfo.length,
+      qty_adults: adults,
+      qty_children: children,
       total_amount: totalPrice.current,
       note: contactInfo.note || "",
       passengers: passengers,
@@ -186,11 +216,11 @@ const BookingTourPage = () => {
 
       // Thành công
       toast.success("Đang chuyển sang thanh toán MoMo...");
-      console.log(">>> Booking response:", res);
+      // console.log(">>> Booking response:", res);
 
       // 6️⃣ Redirect sang MoMo
       window.location.href = res.payUrl;
-      console.log("Booking created:", res);
+      // console.log("Booking created:", res);
       setDone(true);
 
       // Optional điều hướng
@@ -244,6 +274,7 @@ const BookingTourPage = () => {
                 onChange={(e) =>
                   handleInputChange("contact", null, "name", e.target.value)
                 }
+                disabled
               />
               {errors.name && (
                 <div className="invalid-feedback">Vui lòng nhập họ tên</div>
@@ -258,6 +289,7 @@ const BookingTourPage = () => {
                 onChange={(e) =>
                   handleInputChange("contact", null, "email", e.target.value)
                 }
+                disabled
               />
               {errors.email && (
                 <div className="invalid-feedback">Vui lòng nhập email</div>
@@ -272,6 +304,7 @@ const BookingTourPage = () => {
                 onChange={(e) =>
                   handleInputChange("contact", null, "phone", e.target.value)
                 }
+                disabled
               />
               {errors.phone && (
                 <div className="invalid-feedback">
@@ -288,6 +321,7 @@ const BookingTourPage = () => {
                 onChange={(e) =>
                   handleInputChange("contact", null, "address", e.target.value)
                 }
+                disabled
               />
               {errors.address && (
                 <div className="invalid-feedback">Vui lòng nhập địa chỉ</div>

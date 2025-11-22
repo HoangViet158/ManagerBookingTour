@@ -1,6 +1,6 @@
 import React from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaMapMarkedAlt,
@@ -13,10 +13,12 @@ import { FaUsersLine } from "react-icons/fa6";
 import { FaUsersGear } from "react-icons/fa6";
 import { MdMiscellaneousServices } from "react-icons/md";
 import { LiaSearchLocationSolid } from "react-icons/lia";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 import { useState } from "react";
 
 const AppSidebar = () => {
+  const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(true);
   return (
     <Sidebar
@@ -108,7 +110,10 @@ const AppSidebar = () => {
           <MenuItem component={<NavLink to="docs" />}>Tài liệu</MenuItem>
         </SubMenu> */}
         <MenuItem icon={<FaChartBar />} component={<NavLink to="stats" />}>
-          Doanh thu
+          Doanh Thu
+        </MenuItem>
+        <MenuItem icon={<IoMdArrowRoundBack />} onClick={() => navigate("/")}>
+          Trở về
         </MenuItem>
       </Menu>
     </Sidebar>

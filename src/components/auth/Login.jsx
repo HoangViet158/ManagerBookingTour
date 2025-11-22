@@ -28,7 +28,7 @@ const Login = () => {
         toast.success("Đăng nhập thành công");
         navigation("/");
       } else {
-        toast.error("Đăng nhập thất bại");
+        toast.error("Tài khoản hoặc mật khẩu không đúng");
       }
     } catch (err) {
       toast.error("Đăng nhập thất bại");

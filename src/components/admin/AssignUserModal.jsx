@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import adminApi from "../../services/adminApi";
+import { toast } from "react-toastify";
 
 export default function AssignUserModal({
   show,
@@ -16,6 +17,16 @@ export default function AssignUserModal({
     password: "",
     role_id: 2, // 2 = User, 1 = Admin
   });
+  const [roles, setRoles] = useState([]);
+
+  const fetchRole = async () => {
+    const res = await adminApi.getRoles();
+    console.log("Roles:", res);
+    setRoles(res);
+  };
+  useEffect(() => {
+    fetchRole();
+  }, []);
   // Khi chọn khách hàng/nhân viên
   const handleSelect = (type, item) => {
     setType(type);
@@ -37,24 +48,26 @@ export default function AssignUserModal({
   const handleSave = async () => {
     if (!selected) return alert("Chọn khách hàng hoặc nhân viên trước");
     if (!formData.email || !formData.password)
-      return alert("Email và mật khẩu là bắt buộc");
+      return toast.error("Email và mật khẩu là bắt buộc");
+    const payload = {
+      ...formData,
+      role_id: type === "customer" ? 2 : formData.role_id, // gán mặc định cho customer
+    };
 
     try {
       // Tạo user
-      const created = await adminApi.addUser(formData);
+      const created = await adminApi.addUser(payload);
+      console.log("crea", formData);
       // Cập nhật user_id cho customer hoặc employee
-      if (type === "customers") {
-        setSelected((prev) => ({ ...prev, user_id: created.id }));
-        await adminApi.updateCustomer(selected.id, {
-          ...selected,
-          user_id: created.id,
-        });
+      if (type === "customer") {
+        const updatedCustomer = { ...selected, user_id: created.id }; // dùng selected hiện tại
+        await adminApi.updateCustomer(selected.id, updatedCustomer);
+        setSelected(updatedCustomer); // cập nhật state sau cùng
+        toast.info("Cấp tài khoản cho khách hàng, quyền mặc định là User");
       } else {
-        console.log(created);
-        await adminApi.updateEmployee(selected.id, {
-          ...selected,
-          user_id: created.id,
-        });
+        const updatedEmployee = { ...selected, user_id: created.id };
+        await adminApi.updateEmployee(selected.id, updatedEmployee);
+        setSelected(updatedEmployee);
       }
 
       onSuccess();
@@ -144,8 +157,13 @@ export default function AssignUserModal({
                   value={formData.role_id}
                   onChange={handleChange}
                 >
-                  <option value={2}>User</option>
-                  <option value={1}>Admin</option>
+                  {roles
+                    .filter((r) => r.id !== 1)
+                    .map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
                 </Form.Select>
               </Form.Group>
             </Form>

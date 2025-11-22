@@ -1,11 +1,14 @@
 import { useState } from "react";
+import adminApi from "../../services/adminApi";
+import { toast } from "react-toastify";
 
-function ChangePasswordModal() {
+function ChangePasswordModal(props) {
   const [form, setForm] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const { userId } = props;
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState("");
 
@@ -15,7 +18,7 @@ function ChangePasswordModal() {
     setSuccessMsg("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let newErrors = {};
 
@@ -32,8 +35,25 @@ function ChangePasswordModal() {
     }
 
     // 🔥 gọi API đổi mật khẩu ở đây
-    console.log("Đổi mật khẩu thành công:", form);
-
+    // console.log("Đổi mật khẩu thành công:", form);
+    try {
+      const valid = await adminApi.checkPassword(userId, {
+        password: form.oldPassword,
+      });
+      if (!valid?.valid) {
+        setErrors({ oldPassword: "Mật khẩu cũ không đúng" });
+        return;
+      } else {
+        await adminApi.ChangPassword(userId, {
+          newPassword: form.newPassword,
+        });
+        toast.success("Đổi mật khẩu thành công");
+        // console.log(">>> change password res:", res);
+      }
+    } catch (err) {
+      toast.error("Đổi mật khẩu thất bại");
+      console.error("❌ Lỗi đổi mật khẩu:", err);
+    }
     setSuccessMsg("Đổi mật khẩu thành công!");
     setForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
   };
@@ -60,7 +80,7 @@ function ChangePasswordModal() {
       >
         <div className="modal-dialog">
           <div className="modal-content">
-            <form onSubmit={handleSubmit}>
+            <div>
               <div className="modal-header">
                 <h5 className="modal-title" id="changePasswordModalLabel">
                   Đổi mật khẩu
@@ -139,11 +159,15 @@ function ChangePasswordModal() {
                 >
                   Hủy
                 </button>
-                <button type="submit" className="btn btn-primary">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSubmit}
+                >
                   Xác nhận
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

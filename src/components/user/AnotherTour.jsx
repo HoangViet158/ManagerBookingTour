@@ -17,7 +17,7 @@ const GroupExample = (props) => {
   const fetchTour = async () => {
     const res = await adminApi.getTourRandom(tourId);
     setTours(res);
-    console.log("other tours", res);
+    // console.log("other tours", res);
   };
   useEffect(() => {
     fetchTour();

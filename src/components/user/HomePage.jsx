@@ -67,8 +67,8 @@ const HomePage = () => {
       return p >= priceStart && p <= priceEnd;
     });
 
-    console.log("All Tours: ", allTours);
-    console.log("Filtered Tours: ", filtered);
+    // console.log("All Tours: ", allTours);
+    // console.log("Filtered Tours: ", filtered);
     setTours(filtered);
   };
 
@@ -89,7 +89,7 @@ const HomePage = () => {
   const fetchTours = async () => {
     try {
       const res = await adminApi.getTours();
-      console.log("Fetched Tours: ", res);
+      // console.log("Fetched Tours: ", res);
       setAllTours(res);
       setTours(res);
 

@@ -3,14 +3,40 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import adminApi from "../../services/adminApi"; // API giả sử bạn có
 import dayjs from "dayjs";
 import FormatCurrency from "../../hooks/FormatCurrency";
+import InvoiceDetailModal from "./InvoiceDetailModal";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState([]);
-
+  const [show, setShow] = useState(false);
+  const [invoice, setInvoice] = useState({
+    invoice_no: "INV202511189547",
+    amount: "5000000.00",
+    tax: "0.00",
+    invoice_status: "issued",
+    invoice_date: "2025-11-18T09:19:15.000Z",
+    booking_code: "BK112460",
+    booking_status: "pending",
+    payment_status: "unpaid",
+    qty_adults: 1,
+    qty_children: 0,
+    total_amount: "5000000.00",
+    booking_date: "2025-11-18T09:19:15.000Z",
+    email: "nhanvien@gmail.com",
+    passengers: [
+      {
+        id: 35,
+        full_name: "ASD",
+        gender: "",
+        birth_date: "2013-11-05T17:00:00.000Z",
+        seat_type: "ADULT",
+        price: "5000000.00",
+      },
+    ],
+  });
   const fetchInvoices = async () => {
     try {
       const res = await adminApi.getInvoices();
-      console.log(res); // giả sử trả về { data: [...] }
+      // console.log(res); giả sử trả về { data: [...] }
       setInvoices(res);
     } catch (err) {
       console.error("Lỗi khi fetch invoices:", err);
@@ -21,16 +47,20 @@ export default function InvoicesPage() {
     fetchInvoices();
   }, []);
 
-  const handleView = (invoice) => {
-    alert(`Xem chi tiết Invoice #${invoice.id}`);
-    // sau này mở modal hoặc chuyển trang chi tiết
+  const fetchInvoiceById = async (id) => {
+    const res = await adminApi.getInvoiceById(id);
+    setInvoice(res);
+    setShow(true);
+  };
+  const handleView = (id) => {
+    fetchInvoiceById(id);
   };
 
-  const handleDelete = (invoice) => {
-    if (window.confirm(`Bạn có chắc muốn xóa Invoice #${invoice.id}?`)) {
-      setInvoices(invoices.filter((i) => i.id !== invoice.id));
-    }
-  };
+  // const handleDelete = (invoice) => {
+  //   if (window.confirm(`Bạn có chắc muốn xóa Invoice #${invoice.id}?`)) {
+  //     setInvoices(invoices.filter((i) => i.id !== invoice.id));
+  //   }
+  // };
 
   return (
     <div className="container-fluid">
@@ -70,22 +100,27 @@ export default function InvoicesPage() {
                 <td>
                   <button
                     className="btn btn-primary btn-sm me-2"
-                    onClick={() => handleView(inv)}
+                    onClick={() => handleView(inv.id)}
                   >
                     Chi tiết
                   </button>
-                  <button
+                  {/* <button
                     className="btn btn-danger btn-sm"
                     onClick={() => handleDelete(inv)}
                   >
                     Hủy
-                  </button>
+                  </button> */}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <InvoiceDetailModal
+        show={show}
+        onClose={() => setShow(false)}
+        invoice={invoice}
+      />
     </div>
   );
 }

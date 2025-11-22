@@ -19,6 +19,9 @@ import CustomersPage from "../components/admin/CustomersPage";
 import ServicesPage from "../components/admin/ServicePage";
 import LocationPage from "../components/admin/LocationPage";
 import { AuthProvider } from "../hooks/AuthContext";
+import PaymentResultPage from "../components/user/ResultPaymentPage";
+import AdminRoute, { LoginRouter } from "../components/auth/AdminRoute";
+import RevenueChart from "../components/admin/StatePage";
 
 function App() {
   return (
@@ -27,17 +30,39 @@ function App() {
         <Routes>
           <Route path="/" element={<UserLayout />}>
             <Route index element={<HomePage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route
+              path="/login"
+              element={
+                <LoginRouter>
+                  <Login />
+                </LoginRouter>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <LoginRouter>
+                  <Register />
+                </LoginRouter>
+              }
+            />
             <Route path="/detail-tour/:id" element={<DetailTour />} />
             <Route path="/booking-tour/:id" element={<BookingTourPage />} />
+            <Route path="/payment-result" element={<PaymentResultPage />} />
             <Route path="/profile" element={<Profile />}>
               <Route index element={<ProfileInformation />} />
               <Route path="schedule" element={<Schedule />} />
               <Route path="history" element={<History />} />
             </Route>
           </Route>
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
             <Route index element={<DashboardPage />} />
             <Route path="/admin/users" element={<UsersPage />}></Route>
             <Route path="/admin/tours" element={<ToursPage />}></Route>
@@ -46,6 +71,7 @@ function App() {
             <Route path="/admin/customers" element={<CustomersPage />}></Route>
             <Route path="/admin/services" element={<ServicesPage />}></Route>
             <Route path="/admin/locations" element={<LocationPage />}></Route>
+            <Route path="/admin/stats" element={<RevenueChart />} />
           </Route>
         </Routes>
       </AuthProvider>
