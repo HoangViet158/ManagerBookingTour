@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table, Button, Pagination } from "react-bootstrap";
 import locationApi from "../../services/adminApi";
 import AddLocationModal from "./AddLocationModal";
 import EditLocationModal from "./EditLocationModal";
@@ -12,10 +12,26 @@ export default function LocationPage() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
 
+  // -------------------- PHÂN TRANG --------------------
+  const [currentPage, setCurrentPage] = useState(1);
+  const locationsPerPage = 5; // số item mỗi trang
+  const totalPages = Math.ceil(locations.length / locationsPerPage);
+
+  const indexOfLastLocation = currentPage * locationsPerPage;
+  const indexOfFirstLocation = indexOfLastLocation - locationsPerPage;
+  const currentLocations = locations.slice(
+    indexOfFirstLocation,
+    indexOfLastLocation
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // -------------------- FETCH --------------------
   const fetchLocations = async () => {
     try {
       const res = await locationApi.getLocations();
       setLocations(res);
+      setCurrentPage(1); // reset trang khi fetch
     } catch (err) {
       console.error(err);
     }
@@ -48,7 +64,7 @@ export default function LocationPage() {
           </tr>
         </thead>
         <tbody>
-          {locations.map((loc) => (
+          {currentLocations.map((loc) => (
             <tr key={loc.id}>
               <td>{loc.id}</td>
               <td>{loc.name}</td>
@@ -82,6 +98,30 @@ export default function LocationPage() {
         </tbody>
       </Table>
 
+      {/* PHÂN TRANG */}
+      {totalPages > 1 && (
+        <Pagination className="justify-content-center">
+          <Pagination.Prev
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          />
+          {[...Array(totalPages)].map((_, i) => (
+            <Pagination.Item
+              key={i + 1}
+              active={i + 1 === currentPage}
+              onClick={() => paginate(i + 1)}
+            >
+              {i + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() =>
+              currentPage < totalPages && paginate(currentPage + 1)
+            }
+          />
+        </Pagination>
+      )}
+
+      {/* MODALS */}
       <AddLocationModal
         show={addModal}
         onHide={() => setAddModal(false)}

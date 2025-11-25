@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Button } from "react-bootstrap";
+import { Table, Button, Pagination } from "react-bootstrap";
 import adminApi from "../../services/adminApi";
 import FormatCurrency from "../../hooks/FormatCurrency";
 import ServiceModal from "./ServiceModal";
@@ -14,10 +14,26 @@ export default function ServicesPage() {
 
   const [currentService, setCurrentService] = useState(null);
 
+  // -------------------- PHÂN TRANG --------------------
+  const [currentPage, setCurrentPage] = useState(1);
+  const servicesPerPage = 5;
+  const totalPages = Math.ceil(services.length / servicesPerPage);
+
+  const indexOfLastService = currentPage * servicesPerPage;
+  const indexOfFirstService = indexOfLastService - servicesPerPage;
+  const currentServices = services.slice(
+    indexOfFirstService,
+    indexOfLastService
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // -------------------- FETCH --------------------
   const fetchServices = async () => {
     try {
       const res = await adminApi.getServices();
       setServices(res);
+      setCurrentPage(1); // reset về trang 1 sau khi fetch
     } catch (err) {
       console.error(err);
     }
@@ -67,21 +83,17 @@ export default function ServicesPage() {
               <th>ID</th>
               <th>Loại dịch vụ</th>
               <th>Tên dịch vụ</th>
-              {/* <th>Nhà cung cấp</th> */}
               <th className="w-50">Chi tiết</th>
-              {/* <th>Giá</th> */}
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {services.map((service) => (
+            {currentServices.map((service) => (
               <tr key={service.id}>
                 <td>{service.id}</td>
                 <td>{service.type}</td>
                 <td>{service.name}</td>
-                {/* <td>{service.provider}</td> */}
                 <td>{service.details}</td>
-                {/* <td>{FormatCurrency(service.price)}</td> */}
                 <td>
                   <Button
                     size="sm"
@@ -110,6 +122,29 @@ export default function ServicesPage() {
           </tbody>
         </Table>
       </div>
+
+      {/* PHÂN TRANG */}
+      {totalPages > 1 && (
+        <Pagination className="justify-content-center">
+          <Pagination.Prev
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          />
+          {[...Array(totalPages)].map((_, i) => (
+            <Pagination.Item
+              key={i + 1}
+              active={i + 1 === currentPage}
+              onClick={() => paginate(i + 1)}
+            >
+              {i + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() =>
+              currentPage < totalPages && paginate(currentPage + 1)
+            }
+          />
+        </Pagination>
+      )}
 
       {/* Modals */}
       <ServiceModal

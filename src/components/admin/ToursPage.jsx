@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Table } from "react-bootstrap";
+import { Button, Table, Pagination } from "react-bootstrap";
 import AddTourModal from "./AddTourModal";
 import EditTourModal from "./EditTourModal";
 import tourApi from "../../services/adminApi";
@@ -12,6 +12,10 @@ export default function TourPage() {
   const [showSchedule, setShowSchedule] = useState(false);
   const [selectedTour, setSelectedTour] = useState(null);
 
+  // PHÂN TRANG
+  const [currentPage, setCurrentPage] = useState(1);
+  const toursPerPage = 5;
+
   useEffect(() => {
     fetchTours();
   }, []);
@@ -20,6 +24,7 @@ export default function TourPage() {
     try {
       const data = await tourApi.getTours();
       setTours(data);
+      setCurrentPage(1); // reset về trang 1 sau khi lấy dữ liệu
     } catch (err) {
       console.error(err);
       alert("Lấy danh sách tour thất bại");
@@ -37,7 +42,6 @@ export default function TourPage() {
 
   const handleDelete = async (tour) => {
     let msg = `Xác nhận xóa tour "${tour.title}"?`;
-    // Lấy danh sách email hoặc ảnh liên quan nếu muốn hiện thêm info
     if (!window.confirm(msg)) return;
 
     try {
@@ -48,6 +52,14 @@ export default function TourPage() {
       alert("Xóa tour thất bại");
     }
   };
+
+  // ===== PHÂN TRANG LOGIC =====
+  const indexOfLastTour = currentPage * toursPerPage;
+  const indexOfFirstTour = indexOfLastTour - toursPerPage;
+  const currentTours = tours.slice(indexOfFirstTour, indexOfLastTour);
+  const totalPages = Math.ceil(tours.length / toursPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="container-fluid">
@@ -73,7 +85,7 @@ export default function TourPage() {
           </tr>
         </thead>
         <tbody>
-          {tours.map((t) => (
+          {currentTours.map((t) => (
             <tr key={t.id}>
               <td>{t.id}</td>
               <td>{t.code}</td>
@@ -90,7 +102,6 @@ export default function TourPage() {
                   className="me-2"
                   onClick={() => handleSchedule(t)}
                 >
-                  {" "}
                   Lịch trình
                 </Button>
                 <Button
@@ -113,6 +124,29 @@ export default function TourPage() {
           ))}
         </tbody>
       </Table>
+
+      {/* PHÂN TRANG */}
+      {totalPages > 1 && (
+        <Pagination className="justify-content-center">
+          <Pagination.Prev
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          />
+          {[...Array(totalPages)].map((_, i) => (
+            <Pagination.Item
+              key={i + 1}
+              active={i + 1 === currentPage}
+              onClick={() => paginate(i + 1)}
+            >
+              {i + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() =>
+              currentPage < totalPages && paginate(currentPage + 1)
+            }
+          />
+        </Pagination>
+      )}
 
       {/* Modals */}
       <AddTourModal

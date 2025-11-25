@@ -5,6 +5,8 @@ import UserModal from "./UserModal";
 import AssignUserModal from "./AssignUserModal";
 import ResetPasswordModal from "./ResetPasswordModal";
 import { toast } from "react-toastify";
+import { Pagination } from "react-bootstrap";
+
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [modalShow, setModalShow] = useState(false);
@@ -14,6 +16,17 @@ export default function UsersPage() {
   const [assignModalShow, setAssignModalShow] = useState(false);
   const [customersWithoutUser, setCustomersWithoutUser] = useState([]);
   const [employeesNoUser, setEmployeesNoUser] = useState([]);
+
+  // -------------------- PHÂN TRANG --------------------
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 5;
+  const totalPages = Math.ceil(users.length / usersPerPage);
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // -------------------- FETCH --------------------
   const fetchUsers = async () => {
@@ -26,13 +39,13 @@ export default function UsersPage() {
       updatedAt: new Date(user.updated_at).toLocaleDateString("vi-VN"),
     }));
     setUsers(userList);
+    setCurrentPage(1); // reset về trang 1 sau khi fetch
   };
 
   const fetchCustomersWithoutUser = async () => {
     try {
       const res = await adminApi.getCustomersWithoutUser();
       setCustomersWithoutUser(res);
-      console.log("customersWithoutUser:", res);
     } catch (err) {
       console.error("Lỗi khi lấy khách hàng chưa có user:", err);
     }
@@ -54,11 +67,6 @@ export default function UsersPage() {
   }, []);
 
   // -------------------- HANDLE --------------------
-  // const handleAdd = () => {
-  //   setSelectedUser(null);
-  //   setModalShow(true);
-  // };
-
   const handleEdit = (user) => {
     setSelectedUser(user);
     setModalShow(true);
@@ -68,6 +76,7 @@ export default function UsersPage() {
     setSelectedUserId(id);
     setShowModalReset(true);
   };
+
   const handleDelete = async (user) => {
     if (window.confirm(`Bạn có chắc muốn xóa user ${user.email}?`)) {
       try {
@@ -83,7 +92,6 @@ export default function UsersPage() {
   };
 
   const handleAssignAccount = () => {
-    // Mở modal cấp tài khoản từ danh sách khách hàng/nhân viên chưa user
     setAssignModalShow(true);
   };
 
@@ -93,9 +101,6 @@ export default function UsersPage() {
       <div className="d-flex justify-content-between align-items-center my-3">
         <h1>Quản lý User</h1>
         <div>
-          {/* <button className="btn btn-success me-2" onClick={handleAdd}>
-            Thêm user mới
-          </button> */}
           <button className="btn btn-primary" onClick={handleAssignAccount}>
             Cấp tài khoản
           </button>
@@ -116,7 +121,7 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {currentUsers.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>{user.email}</td>
@@ -147,6 +152,29 @@ export default function UsersPage() {
             ))}
           </tbody>
         </table>
+
+        {/* PHÂN TRANG */}
+        {totalPages > 1 && (
+          <Pagination className="justify-content-center">
+            <Pagination.Prev
+              onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+            />
+            {[...Array(totalPages)].map((_, i) => (
+              <Pagination.Item
+                key={i + 1}
+                active={i + 1 === currentPage}
+                onClick={() => paginate(i + 1)}
+              >
+                {i + 1}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next
+              onClick={() =>
+                currentPage < totalPages && paginate(currentPage + 1)
+              }
+            />
+          </Pagination>
+        )}
       </div>
 
       {/* MODAL THÊM/SỬA USER */}
@@ -170,15 +198,13 @@ export default function UsersPage() {
           toast.success("Cấp tài khoản thành công");
         }}
       />
-      {/* Modal xác nhận */}
+
+      {/* MODAL RESET PASSWORD */}
       <ResetPasswordModal
         show={showModalReset}
         onHide={() => setShowModalReset(false)}
         userId={selectedUserId}
-        onSuccess={() => {
-          // reload danh sách sau khi reset xong nếu cần
-          fetchUsers();
-        }}
+        onSuccess={fetchUsers}
       />
     </div>
   );

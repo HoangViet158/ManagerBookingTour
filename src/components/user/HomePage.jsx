@@ -8,79 +8,62 @@ import PerfectScrollbar from "perfect-scrollbar";
 import useEqualHeight from "../../hooks/useEqualHeight";
 import { useNavigate } from "react-router-dom";
 import adminApi from "../../services/adminApi";
+import { Pagination } from "react-bootstrap";
 
 const HomePage = () => {
   const today = new Date().toISOString().split("T")[0];
   const navigate = useNavigate();
 
-  // GIÁ
   const [priceStart, setPriceStart] = useState(0);
   const [priceEnd, setPriceEnd] = useState(0);
   const [priceMax, setPriceMax] = useState(0);
 
-  // REF 2 CỘT
   const rightRef = useRef(null);
   const leftRef = useRef(null);
 
-  // ĐIỂM ĐI - ĐIỂM ĐẾN
   const [options, setOptions] = useState([]);
   const [departure, setDeparture] = useState(null);
   const [destination, setDestination] = useState(null);
 
-  // SEARCH TEXT & DATE
   const [searchText, setSearchText] = useState("");
   const [date, setDate] = useState(today);
 
-  // TOURS GỐC + TOURS HIỂN THỊ
   const [allTours, setAllTours] = useState([]);
   const [tours, setTours] = useState([]);
 
-  // ====== HÀM FILTER ======
+  // PHÂN TRANG
+  const [currentPage, setCurrentPage] = useState(1);
+  const toursPerPage = 5;
+
   const handleSearch = () => {
     let filtered = [...allTours];
 
-    // 1. Lọc từ khóa
     if (searchText.trim() !== "") {
       filtered = filtered.filter((t) =>
         t.title.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
-    // 2. Lọc điểm khởi hành
-    if (departure) {
+    if (departure)
       filtered = filtered.filter((t) => t.main_location_id === departure.value);
-    }
-
-    // 3. Lọc điểm đến
-    if (destination) {
+    if (destination)
       filtered = filtered.filter((t) => t.destination_id === destination.value);
-    }
 
-    // 4. Lọc ngày
-    filtered = filtered.filter((t) => {
-      return t.start_dates.some((d) => d >= date);
-    });
-
-    // 5. Lọc giá
+    filtered = filtered.filter((t) => t.start_dates.some((d) => d >= date));
     filtered = filtered.filter((t) => {
       const p = Number(t.price);
       return p >= priceStart && p <= priceEnd;
     });
 
-    // console.log("All Tours: ", allTours);
-    // console.log("Filtered Tours: ", filtered);
     setTours(filtered);
+    setCurrentPage(1); // reset trang 1 sau filter
   };
 
-  // ===== SCROLLBAR =====
   useEffect(() => {
     const ps = new PerfectScrollbar(rightRef.current);
-    return () => {
-      ps.destroy();
-    };
+    return () => ps.destroy();
   }, []);
 
-  // ===== LẤY DATA TOUR + LOCATION =====
   useEffect(() => {
     fetchTours();
     fetchLocations();
@@ -89,7 +72,6 @@ const HomePage = () => {
   const fetchTours = async () => {
     try {
       const res = await adminApi.getTours();
-      // console.log("Fetched Tours: ", res);
       setAllTours(res);
       setTours(res);
 
@@ -98,29 +80,30 @@ const HomePage = () => {
       setPriceStart(0);
       setPriceEnd(maxPrice);
     } catch (error) {
-      console.error("Error fetching tours:", error);
+      console.error(error);
     }
   };
 
   const fetchLocations = async () => {
     try {
       const res = await adminApi.getLocations();
-      setOptions(
-        res.map((loc) => ({
-          value: loc.id,
-          label: loc.name,
-        }))
-      );
+      setOptions(res.map((loc) => ({ value: loc.id, label: loc.name })));
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error(error);
     }
   };
 
-  const handleBtnDetailTour = (id) => {
-    navigate(`/detail-tour/${id}`);
-  };
+  const handleBtnDetailTour = (id) => navigate(`/detail-tour/${id}`);
 
   useEqualHeight(leftRef, rightRef);
+
+  // ===== PHÂN TRANG LOGIC =====
+  const indexOfLastTour = currentPage * toursPerPage;
+  const indexOfFirstTour = indexOfLastTour - toursPerPage;
+  const currentTours = tours.slice(indexOfFirstTour, indexOfLastTour);
+  const totalPages = Math.ceil(tours.length / toursPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="home-page">
@@ -193,14 +176,9 @@ const HomePage = () => {
             />
           </div>
 
-          {/* BUTTONS */}
-          <button
-            className="btn btn-primary text-center w-100"
-            onClick={handleSearch}
-          >
+          <button className="btn btn-primary w-100" onClick={handleSearch}>
             Tìm kiếm
           </button>
-
           <button className="btn btn-secondary w-100 mt-2" onClick={fetchTours}>
             Reset bộ lọc
           </button>
@@ -214,24 +192,22 @@ const HomePage = () => {
         >
           <h2>Tour du lịch</h2>
 
-          {tours.map((tour, index) => (
+          {currentTours.map((tour, index) => (
             <div key={index} className="card mb-3" style={{ width: "100%" }}>
               <img
                 className="card-img-top"
                 src={
-                  tour.img && tour.img.length > 0
+                  tour.img?.length > 0
                     ? `${import.meta.env.VITE_API_URL}${tour.img[0]}`
                     : BannerImage
                 }
                 alt="Tour Img"
               />
-
               <div className="card-body">
                 <h5 className="card-title">{tour.title}</h5>
                 <p className="card-text">
                   {tour.short_description || "Mô tả ngắn về tour du lịch"}
                 </p>
-
                 <button
                   className="btn btn-primary"
                   onClick={() => handleBtnDetailTour(tour.id)}
@@ -241,6 +217,29 @@ const HomePage = () => {
               </div>
             </div>
           ))}
+
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <Pagination>
+              <Pagination.Prev
+                onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+              />
+              {[...Array(totalPages)].map((_, i) => (
+                <Pagination.Item
+                  key={i + 1}
+                  active={i + 1 === currentPage}
+                  onClick={() => paginate(i + 1)}
+                >
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next
+                onClick={() =>
+                  currentPage < totalPages && paginate(currentPage + 1)
+                }
+              />
+            </Pagination>
+          )}
         </div>
       </div>
     </div>

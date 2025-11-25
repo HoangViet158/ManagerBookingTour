@@ -3,10 +3,10 @@ import {
   getRoles,
   getRolePermissions,
   assignPermissions,
-  addRole, // <-- Thêm hàm addRole trong roleApi
+  addRole,
 } from "../../services/roleApi";
 import { getPermissions } from "../../services/permissionApi";
-import { Table, Button, Modal, Form } from "react-bootstrap";
+import { Table, Button, Modal, Form, Pagination } from "react-bootstrap";
 import { toast } from "react-toastify";
 
 export default function RolesPage() {
@@ -20,7 +20,17 @@ export default function RolesPage() {
   const [newRoleName, setNewRoleName] = useState("");
   const [newRoleDesc, setNewRoleDesc] = useState("");
 
-  // 🔹 Lấy roles và permissions
+  // Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const rolesPerPage = 5;
+  const totalPages = Math.ceil(roles.length / rolesPerPage);
+
+  const indexOfLastRole = currentPage * rolesPerPage;
+  const indexOfFirstRole = indexOfLastRole - rolesPerPage;
+  const currentRoles = roles.slice(indexOfFirstRole, indexOfLastRole);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   useEffect(() => {
     fetchRoles();
     fetchPermissions();
@@ -29,6 +39,7 @@ export default function RolesPage() {
   const fetchRoles = async () => {
     const res = await getRoles();
     setRoles(res);
+    setCurrentPage(1); // reset page khi fetch
   };
 
   const fetchPermissions = async () => {
@@ -36,7 +47,6 @@ export default function RolesPage() {
     setPermissions(res);
   };
 
-  // 🔹 Mở modal gán quyền
   const handleAssign = async (role) => {
     if (role.id === 1 || role.name.trim().toLowerCase() === "admin") {
       toast.error("Không được sửa quyền của admin");
@@ -66,7 +76,6 @@ export default function RolesPage() {
     }
   };
 
-  // 🔹 Thêm role mới
   const handleAddRole = async () => {
     if (!newRoleName.trim()) {
       toast.error("Tên vai trò không được để trống");
@@ -78,7 +87,7 @@ export default function RolesPage() {
       setNewRoleName("");
       setNewRoleDesc("");
       setShowAddRoleModal(false);
-      fetchRoles(); // reload danh sách roles
+      fetchRoles();
     } catch (err) {
       console.error(err);
       toast.error("Lỗi khi thêm vai trò");
@@ -89,7 +98,6 @@ export default function RolesPage() {
     <div className="p-4">
       <div className="d-flex justify-content-between">
         <h3>Quản lý Vai trò & Phân quyền</h3>
-
         <Button
           variant="success"
           className="mb-3"
@@ -109,7 +117,7 @@ export default function RolesPage() {
           </tr>
         </thead>
         <tbody>
-          {roles.map((role) => (
+          {currentRoles.map((role) => (
             <tr key={role.id}>
               <td>{role.id}</td>
               <td>{role.name}</td>
@@ -127,6 +135,29 @@ export default function RolesPage() {
           ))}
         </tbody>
       </Table>
+
+      {/* Phân trang */}
+      {totalPages > 1 && (
+        <Pagination className="justify-content-center">
+          <Pagination.Prev
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          />
+          {[...Array(totalPages)].map((_, i) => (
+            <Pagination.Item
+              key={i + 1}
+              active={i + 1 === currentPage}
+              onClick={() => paginate(i + 1)}
+            >
+              {i + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() =>
+              currentPage < totalPages && paginate(currentPage + 1)
+            }
+          />
+        </Pagination>
+      )}
 
       {/* Modal gán quyền */}
       <Modal show={showAssignModal} onHide={() => setShowAssignModal(false)}>

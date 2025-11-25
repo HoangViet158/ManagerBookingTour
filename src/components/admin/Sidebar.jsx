@@ -121,14 +121,13 @@ const AppSidebar = () => {
 
       <Menu iconShape="circle">
         {/* Dashboard */}
-        {can("DASHBOARD") && (
-          <MenuItem
-            icon={<FaTachometerAlt />}
-            component={<NavLink to="/admin" />}
-          >
-            Dashboard
-          </MenuItem>
-        )}
+
+        <MenuItem
+          icon={<FaTachometerAlt />}
+          component={<NavLink to="/admin" />}
+        >
+          Dashboard
+        </MenuItem>
 
         {/* Menu chính */}
         {sidebarMenu.map((menu) =>

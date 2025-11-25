@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Button, Table } from "react-bootstrap";
-import adminApi from "../../services/adminApi"; // giả sử có API
+import { Button, Table, Pagination } from "react-bootstrap";
+import adminApi from "../../services/adminApi";
 import dayjs from "dayjs";
 import ModalCustomer from "./ModalCustomer";
 import { validatePhone, validateRequired } from "../../utils/Validate";
 import { toast } from "react-toastify";
 import ModalDelete from "./ModalDeleteCustomer";
+
 const CustomersPage = () => {
   const [customers, setCustomers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showModalDelete, setModalShowDelete] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
 
+  // Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const customersPerPage = 10;
+
   // Fetch khách hàng
   const fetchCustomers = async () => {
     try {
-      const res = await adminApi.getCustomers(); // trả về { data: [...] }
+      const res = await adminApi.getCustomers();
       setCustomers(res);
-      console.log(res);
+      setCurrentPage(1); // reset page khi fetch lại dữ liệu
     } catch (err) {
       console.error(err);
     }
@@ -37,9 +42,8 @@ const CustomersPage = () => {
     setCurrentCustomer(customer);
   };
 
-  // Lưu thông tin khách hàng (thêm hoặc sửa)
+  // Lưu thông tin khách hàng
   const handleSaveCustomer = async () => {
-    console.log("Saving customer:", currentCustomer);
     try {
       if (!validatePhone(currentCustomer?.phone)) {
         toast.error("Số điện thoại không hợp lệ");
@@ -53,13 +57,11 @@ const CustomersPage = () => {
         toast.error("Ngày sinh không được để trống");
         return;
       }
-      if (currentCustomer?.id) {
-        // update
-        await adminApi.updateCustomer(currentCustomer.id, currentCustomer);
 
+      if (currentCustomer?.id) {
+        await adminApi.updateCustomer(currentCustomer.id, currentCustomer);
         toast.success("Cập nhật khách hàng thành công");
       } else {
-        // create
         await adminApi.addCustomer(currentCustomer);
         toast.success("Thêm khách hàng thành công");
       }
@@ -75,6 +77,17 @@ const CustomersPage = () => {
     await adminApi.deleteCustomer(id, { user_id });
     fetchCustomers();
   };
+
+  // Phân trang dữ liệu
+  const indexOfLastCustomer = currentPage * customersPerPage;
+  const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
+  const currentCustomers = customers.slice(
+    indexOfFirstCustomer,
+    indexOfLastCustomer
+  );
+  const totalPages = Math.ceil(customers.length / customersPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="container-fluid mt-3">
@@ -100,7 +113,7 @@ const CustomersPage = () => {
             </tr>
           </thead>
           <tbody>
-            {customers.map((cust) => (
+            {currentCustomers.map((cust) => (
               <tr key={cust.id}>
                 <td>{cust.id}</td>
                 <td>{cust.full_name}</td>
@@ -131,6 +144,30 @@ const CustomersPage = () => {
           </tbody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination className="justify-content-center">
+          <Pagination.Prev
+            onClick={() => currentPage > 1 && paginate(currentPage - 1)}
+          />
+          {[...Array(totalPages)].map((_, i) => (
+            <Pagination.Item
+              key={i + 1}
+              active={i + 1 === currentPage}
+              onClick={() => paginate(i + 1)}
+            >
+              {i + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() =>
+              currentPage < totalPages && paginate(currentPage + 1)
+            }
+          />
+        </Pagination>
+      )}
+
       {/* Modal Thêm / Sửa Khách hàng */}
       <ModalCustomer
         showModal={showModal}

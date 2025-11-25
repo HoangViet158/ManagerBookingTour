@@ -79,16 +79,18 @@ const ProfileInformation = () => {
     if (!form.email.trim()) e.email = "Email là bắt buộc.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = "Email không hợp lệ.";
-    if (!form.dob) e.dob = "Ngày sinh là bắt buộc.";
+    if (!form.dob && user?.role_id === 2) e.dob = "Ngày sinh là bắt buộc.";
     else {
       const dobDate = new Date(form.dob);
       const now = new Date();
-      if (dobDate > now) e.dob = "Ngày sinh không thể ở tương lai.";
+      if (dobDate > now && user?.role_id === 2)
+        e.dob = "Ngày sinh không thể ở tương lai.";
     }
     if (!form.phone.trim()) e.phone = "Số điện thoại là bắt buộc.";
     else if (!/^[0-9]{7,15}$/.test(form.phone.replace(/[ \-()+]/g, "")))
       e.phone = "Số điện thoại không hợp lệ (7-15 chữ số).";
-    if (!form.address.trim()) e.address = "Địa chỉ là bắt buộc.";
+    if (!form.address.trim() && user.role_id === 2)
+      e.address = "Địa chỉ là bắt buộc.";
 
     setErrors(e);
     return Object.keys(e).length === 0;

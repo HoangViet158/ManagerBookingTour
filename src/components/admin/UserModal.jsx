@@ -6,13 +6,12 @@ function UserModal({ show, onHide, user, onSuccess }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "",
+    role_id: 2,
   });
   const [roles, setRoles] = useState([]);
 
   const fetchRole = async () => {
     const res = await adminApi.getRoles();
-    console.log("Roles:", res);
     setRoles(res);
   };
   useEffect(() => {
@@ -23,10 +22,10 @@ function UserModal({ show, onHide, user, onSuccess }) {
       setFormData({
         email: user.email || "",
         password: "",
-        role: user.role || "",
+        role_id: user.role_id || "",
       });
     } else {
-      setFormData({ email: "", password: "", role: "" });
+      setFormData({ email: "", password: "", role_id: 2 });
     }
   }, [user]);
 
@@ -86,8 +85,8 @@ function UserModal({ show, onHide, user, onSuccess }) {
           <Form.Group className="mb-3">
             <Form.Label>Quyền</Form.Label>
             <Form.Select
-              name="role"
-              value={formData.role}
+              name="role_id"
+              value={formData.role_id}
               onChange={handleChange}
             >
               {roles
