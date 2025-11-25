@@ -81,7 +81,7 @@ export default function InvoicesPage() {
               <th>ID</th>
               <th>Khách hàng</th>
               <th>Tổng tiền</th>
-              <th>Thuế</th>
+              {/* <th>Thuế</th> */}
 
               <th>Ngày tạo</th>
               <th>Trạng thái</th>
@@ -94,7 +94,7 @@ export default function InvoicesPage() {
                 <td>{inv.invoice_no}</td>
                 <td>{inv.customer_name || inv.customer_email}</td>
                 <td>{FormatCurrency(inv.amount)}</td>
-                <td>{FormatCurrency(inv.tax)}</td>
+                {/* <td>{FormatCurrency(inv.tax)}</td> */}
                 <td>{dayjs(inv.issued_at).format("HH:mm:ss DD/MM/YYYY ")}</td>
                 <td>{inv.status}</td>
                 <td>

@@ -144,9 +144,9 @@ const BookingTourPage = () => {
     let newErrors = {};
 
     // validate contact info
-    ["name", "email", "phone", "address"].forEach((field) => {
-      if (!contactInfo[field]) newErrors[field] = true;
-    });
+    // ["name", "email", "phone", "address"].forEach((field) => {
+    //   if (!contactInfo[field]) newErrors[field] = true;
+    // });
 
     // validate adult info
     adultInfo.forEach((person, index) => {

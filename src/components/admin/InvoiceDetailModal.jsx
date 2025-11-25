@@ -37,9 +37,9 @@ const InvoiceDetailModal = ({ show, onClose, invoice }) => {
               <div className="col-md-6">
                 <b>Trạng thái:</b> {invoice.invoice_status}
               </div>
-              <div className="col-md-6">
+              {/* <div className="col-md-6">
                 <b>Thuế:</b> {invoice.tax}
-              </div>
+              </div> */}
               <div className="col-md-6">
                 <b>Tổng tiền:</b> {invoice.amount}
               </div>

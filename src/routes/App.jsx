@@ -22,6 +22,7 @@ import { AuthProvider } from "../hooks/AuthContext";
 import PaymentResultPage from "../components/user/ResultPaymentPage";
 import AdminRoute, { LoginRouter } from "../components/auth/AdminRoute";
 import RevenueChart from "../components/admin/StatePage";
+import RolesPage from "../components/admin/RolesPage";
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
             <Route path="/admin/services" element={<ServicesPage />}></Route>
             <Route path="/admin/locations" element={<LocationPage />}></Route>
             <Route path="/admin/stats" element={<RevenueChart />} />
+            <Route path="/admin/roles" element={<RolesPage />} />
           </Route>
         </Routes>
       </AuthProvider>

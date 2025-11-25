@@ -69,7 +69,7 @@ export default function ServicesPage() {
               <th>Tên dịch vụ</th>
               {/* <th>Nhà cung cấp</th> */}
               <th className="w-50">Chi tiết</th>
-              <th>Giá</th>
+              {/* <th>Giá</th> */}
               <th>Hành động</th>
             </tr>
           </thead>
@@ -81,7 +81,7 @@ export default function ServicesPage() {
                 <td>{service.name}</td>
                 {/* <td>{service.provider}</td> */}
                 <td>{service.details}</td>
-                <td>{FormatCurrency(service.price)}</td>
+                {/* <td>{FormatCurrency(service.price)}</td> */}
                 <td>
                   <Button
                     size="sm"

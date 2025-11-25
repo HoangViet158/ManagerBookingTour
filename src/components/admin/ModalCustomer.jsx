@@ -54,6 +54,7 @@ const ModalCustomer = (props) => {
                 value={
                   dayjs(currentCustomer?.birthday).format("YYYY-MM-DD") || ""
                 }
+                max={dayjs(new Date()).format("YYYY-MM-DD")}
                 onKeyDown={(e) => e.preventDefault()} // Ngăn chặn nhập liệu thủ công
                 onClick={(e) => e.target.showPicker?.()} // Ép mở popup lịch khi focus
                 onChange={(e) =>

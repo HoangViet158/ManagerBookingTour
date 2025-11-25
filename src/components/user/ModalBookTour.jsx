@@ -6,11 +6,27 @@ import FormatCurrency from "../../hooks/FormatCurrency";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import useAuth from "../../hooks/useAuth";
+import { FaPlane } from "react-icons/fa";
+
 import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
 const ModalBookTour = (props) => {
   const { tourSchedule, ...modalProps } = props;
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [vehical, setVehical] = useState("Xe khách");
+  const [departure, setDeparture] = useState("");
+  const getVehical = () => {
+    const transport = props.service.find((s) => s.type === "transport");
+    if (transport) {
+      setVehical(transport.service_name);
+      setDeparture(transport.details);
+    }
+  };
+  useEffect(() => {
+    getVehical();
+  }, [props.service]);
+
   const handleBookNow = () => {
     if (tourSchedule.seats_total - tourSchedule.seats_booked <= 0) {
       toast.error("Rất tiếc, tour đã hết chỗ.");
@@ -58,8 +74,19 @@ const ModalBookTour = (props) => {
             </span>
           </div>
           <div className="timeline text-center">
-            <span>Xe khách {<FaBus />}</span>
+            <span>
+              {vehical.trim() !== "Máy bay" ? (
+                <>
+                  {vehical} <FaBus />
+                </>
+              ) : (
+                <>
+                  {vehical} <FaPlane />
+                </>
+              )}
+            </span>
             <hr style={{ width: "100%", borderTop: "2px solid #0d6efd" }} />
+            <small>{departure}</small>
           </div>
           <div className="d-flex flex-column">
             <span>

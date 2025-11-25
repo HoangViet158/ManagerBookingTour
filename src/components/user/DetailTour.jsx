@@ -36,6 +36,7 @@ const DetailTour = () => {
     created_at: "",
     updated_at: "",
   });
+  const [tourSevice, setTourService] = useState([]);
   const [tourSchedules, setTourSchedules] = useState([]);
   const [img, setImg] = useState([]);
   const [tour, setTour] = useState([
@@ -65,11 +66,14 @@ const DetailTour = () => {
       return () => ps.destroy();
     }
   }, []);
+
   const fetchTourDetails = async () => {
     const res = await adminApi.getTourById(id);
     const data = await adminApi.getTourImages(id);
+    const service = await adminApi.getServiceByTourId(id);
     setTour(res);
     setImg(data);
+    setTourService(service);
   };
   const fetchTourSchedules = async () => {
     const res = await adminApi.getTourScheduleByTourId(id);
@@ -218,6 +222,18 @@ const DetailTour = () => {
               ))}
             </div>
           </div>
+          <div className="d-flex align-items-center flex-wrap gap-2 mt-4">
+            <span className="fw-bold me-2">Dịch vụ:</span>
+
+            {tourSevice.map((ts, index) => (
+              <button
+                key={index}
+                className="btn btn-outline-primary rounded-pill px-3 py-1"
+              >
+                {ts.service_name}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="right-content">
           <h3> Giá: </h3>
@@ -261,6 +277,7 @@ const DetailTour = () => {
         tourSchedule={scheduleSelected}
         show={modalShow}
         onHide={() => setModalShow(false)}
+        service={tourSevice}
       />
     </div>
   );

@@ -361,7 +361,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
               <thead>
                 <tr>
                   <th>Tên dịch vụ</th>
-                  {/* <th>Mô tả</th> */}
+                  <th>Mô tả</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -373,7 +373,7 @@ export default function TourScheduleModal({ show, onClose, tour }) {
                   return (
                     <tr key={s.id}>
                       <td>{s.name}</td>
-                      {/* <td>{s.description}</td> */}
+                      <td>{s.details}</td>
                       <td>
                         {attachedService ? (
                           <Button
